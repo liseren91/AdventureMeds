@@ -1,5 +1,9 @@
 import ServiceCard from "./ServiceCard";
 import { MOCK_SERVICES } from "@/lib/mockData";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useLocation } from "wouter";
+import { useApp } from "@/context/AppContext";
 
 interface RecommendedServicesProps {
   currentServiceId: string;
@@ -12,6 +16,9 @@ export default function RecommendedServices({
   category,
   onServiceClick,
 }: RecommendedServicesProps) {
+  const [, setLocation] = useLocation();
+  const { setSelectedCategory } = useApp();
+
   //todo: remove mock functionality - implement real recommendation algorithm
   const recommendedServices = MOCK_SERVICES
     .filter(service => 
@@ -23,9 +30,25 @@ export default function RecommendedServices({
     return null;
   }
 
+  const handleViewAllSimilar = () => {
+    setSelectedCategory(category);
+    setLocation('/');
+  };
+
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Similar Services</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Similar Services</h2>
+        <Button 
+          variant="outline" 
+          onClick={handleViewAllSimilar}
+          className="gap-2"
+          data-testid="button-find-similar"
+        >
+          View All {category.charAt(0).toUpperCase() + category.slice(1)}
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {recommendedServices.map(service => (
           <ServiceCard

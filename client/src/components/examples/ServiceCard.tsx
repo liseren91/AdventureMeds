@@ -4,6 +4,7 @@ export default function ServiceCardExample() {
   return (
     <div className="w-96">
       <ServiceCard
+        id="1"
         name="Jasper AI"
         subtitle="AI Copywriting"
         description="Content creation for marketing, blogs, and social media"

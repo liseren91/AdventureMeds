@@ -2,76 +2,10 @@ import { useState, useMemo } from "react";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
 import ServiceCard from "@/components/ServiceCard";
-
-//todo: remove mock functionality
-const MOCK_SERVICES = [
-  {
-    id: "1",
-    name: "Jasper AI",
-    subtitle: "AI Copywriting",
-    description: "Content creation for marketing, blogs, and social media",
-    category: "copywriting",
-    price: "Freemium",
-    rating: "4.8",
-    icon: "✨",
-    color: "#6366f1",
-  },
-  {
-    id: "2",
-    name: "Canva AI",
-    subtitle: "Design & Visuals",
-    description: "Create stunning designs with AI-powered tools",
-    category: "design",
-    price: "Freemium",
-    rating: "4.9",
-    icon: "🎨",
-    color: "#ec4899",
-  },
-  {
-    id: "3",
-    name: "Copy.ai",
-    subtitle: "Marketing Texts",
-    description: "Generate high-converting marketing copy instantly",
-    category: "marketing",
-    price: "Freemium",
-    rating: "4.7",
-    icon: "📝",
-    color: "#8b5cf6",
-  },
-  {
-    id: "4",
-    name: "Grammarly",
-    subtitle: "Text Checking",
-    description: "Advanced grammar and writing enhancement",
-    category: "text",
-    price: "Freemium",
-    rating: "4.6",
-    icon: "✍️",
-    color: "#10b981",
-  },
-  {
-    id: "5",
-    name: "ChatGPT Plus",
-    subtitle: "Universal AI",
-    description: "Advanced AI assistant for any task",
-    category: "chat",
-    price: "$20/month",
-    rating: "4.9",
-    icon: "🤖",
-    color: "#14b8a6",
-  },
-  {
-    id: "6",
-    name: "Buffer AI",
-    subtitle: "Social Media",
-    description: "Optimize your social media strategy with AI",
-    category: "social",
-    price: "Freemium",
-    rating: "4.5",
-    icon: "📱",
-    color: "#f59e0b",
-  },
-];
+import SortSelect, { type SortOption } from "@/components/SortSelect";
+import { MOCK_SERVICES } from "@/lib/mockData";
+import { Button } from "@/components/ui/button";
+import { Download, GitCompare } from "lucide-react";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,6 +16,9 @@ export default function Home() {
     paid: false,
   });
   const [rating, setRating] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("popularity");
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [comparing, setComparing] = useState<Set<string>>(new Set());
 
   const handlePriceFilterChange = (filter: 'free' | 'freemium' | 'paid') => {
     setPriceFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
@@ -92,15 +29,63 @@ export default function Home() {
     setPriceFilters({ free: false, freemium: false, paid: false });
     setRating("");
     setSearchQuery("");
+    setSortBy("popularity");
   };
 
   const handleSearch = () => {
     console.log('Search triggered:', searchQuery);
   };
 
-  //todo: remove mock functionality
-  const filteredServices = useMemo(() => {
-    return MOCK_SERVICES.filter(service => {
+  const handleFavoriteToggle = (serviceId: string, isFavorite: boolean) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (isFavorite) {
+        newFavorites.add(serviceId);
+      } else {
+        newFavorites.delete(serviceId);
+      }
+      return newFavorites;
+    });
+  };
+
+  const handleCompareToggle = (serviceId: string, isComparing: boolean) => {
+    setComparing(prev => {
+      const newComparing = new Set(prev);
+      if (isComparing) {
+        if (newComparing.size >= 4) {
+          console.log('Maximum 4 services can be compared');
+          return prev;
+        }
+        newComparing.add(serviceId);
+      } else {
+        newComparing.delete(serviceId);
+      }
+      return newComparing;
+    });
+  };
+
+  const handleExport = () => {
+    console.log('Exporting services list...');
+    const data = filteredAndSortedServices.map(s => ({
+      name: s.name,
+      category: s.category,
+      price: s.price,
+      rating: s.rating,
+    }));
+    console.log('Export data:', data);
+  };
+
+  const handleCompare = () => {
+    const servicesToCompare = Array.from(comparing);
+    console.log('Comparing services:', servicesToCompare);
+  };
+
+  const handleServiceClick = (serviceId: string) => {
+    console.log('Navigating to service details:', serviceId);
+  };
+
+  const filteredAndSortedServices = useMemo(() => {
+    let filtered = MOCK_SERVICES.filter(service => {
       const matchesSearch = searchQuery === "" || 
         service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -122,7 +107,34 @@ export default function Home() {
 
       return matchesSearch && matchesCategory && matchesPrice && matchesRating;
     });
-  }, [searchQuery, category, priceFilters, rating]);
+
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'rating-desc':
+          return parseFloat(b.rating) - parseFloat(a.rating);
+        case 'rating-asc':
+          return parseFloat(a.rating) - parseFloat(b.rating);
+        case 'popularity':
+          return b.popularity - a.popularity;
+        case 'newest':
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        case 'price-asc':
+        case 'price-desc': {
+          const getPrice = (price: string) => {
+            if (price === 'Free') return 0;
+            if (price === 'Freemium') return 1;
+            const match = price.match(/\$(\d+)/);
+            return match ? parseInt(match[1]) : 999;
+          };
+          const priceA = getPrice(a.price);
+          const priceB = getPrice(b.price);
+          return sortBy === 'price-asc' ? priceA - priceB : priceB - priceA;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [searchQuery, category, priceFilters, rating, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,10 +178,37 @@ export default function Home() {
           </aside>
 
           <main className="flex-1 space-y-6">
+            <div className="flex items-center justify-between gap-4">
+              <SortSelect value={sortBy} onChange={setSortBy} />
+              <div className="flex items-center gap-2">
+                {comparing.size > 0 && (
+                  <Button
+                    onClick={handleCompare}
+                    variant="outline"
+                    className="gap-2"
+                    data-testid="button-compare-services"
+                  >
+                    <GitCompare className="h-4 w-4" />
+                    Compare ({comparing.size})
+                  </Button>
+                )}
+                <Button
+                  onClick={handleExport}
+                  variant="outline"
+                  className="gap-2"
+                  data-testid="button-export"
+                >
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map(service => (
+              {filteredAndSortedServices.map(service => (
                 <ServiceCard
                   key={service.id}
+                  id={service.id}
                   name={service.name}
                   subtitle={service.subtitle}
                   description={service.description}
@@ -177,11 +216,16 @@ export default function Home() {
                   rating={service.rating}
                   icon={service.icon}
                   color={service.color}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  onCompareToggle={handleCompareToggle}
+                  onClick={() => handleServiceClick(service.id)}
+                  isFavorite={favorites.has(service.id)}
+                  isComparing={comparing.has(service.id)}
                 />
               ))}
             </div>
 
-            {filteredServices.length === 0 && (
+            {filteredAndSortedServices.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No services found matching your criteria</p>
               </div>
@@ -189,7 +233,7 @@ export default function Home() {
 
             <div className="border-t border-border pt-6">
               <p className="text-sm text-muted-foreground text-center" data-testid="text-results-count">
-                Showing {filteredServices.length} out of 2,147 services
+                Showing {filteredAndSortedServices.length} out of 2,147 services
               </p>
             </div>
           </main>

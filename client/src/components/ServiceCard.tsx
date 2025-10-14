@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
+import ServiceCardActions from "./ServiceCardActions";
 
 interface ServiceCardProps {
+  id: string;
   name: string;
   subtitle: string;
   description: string;
@@ -10,9 +12,15 @@ interface ServiceCardProps {
   rating: string;
   icon: string;
   color: string;
+  onFavoriteToggle?: (serviceId: string, isFavorite: boolean) => void;
+  onCompareToggle?: (serviceId: string, isComparing: boolean) => void;
+  onClick?: () => void;
+  isFavorite?: boolean;
+  isComparing?: boolean;
 }
 
 export default function ServiceCard({
+  id,
   name,
   subtitle,
   description,
@@ -20,9 +28,18 @@ export default function ServiceCard({
   rating,
   icon,
   color,
+  onFavoriteToggle,
+  onCompareToggle,
+  onClick,
+  isFavorite = false,
+  isComparing = false,
 }: ServiceCardProps) {
   return (
-    <Card className="hover-elevate transition-all duration-200" data-testid={`card-service-${name.toLowerCase().replace(/\s+/g, '-')}`}>
+    <Card 
+      className="hover-elevate transition-all duration-200 cursor-pointer" 
+      onClick={onClick}
+      data-testid={`card-service-${name.toLowerCase().replace(/\s+/g, '-')}`}
+    >
       <CardHeader className="space-y-3 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div 
@@ -31,9 +48,19 @@ export default function ServiceCard({
           >
             {icon}
           </div>
-          <Badge variant="secondary" className="text-xs" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>
-            {price}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>
+              {price}
+            </Badge>
+            <ServiceCardActions
+              serviceId={id}
+              serviceName={name}
+              onFavoriteToggle={onFavoriteToggle}
+              onCompareToggle={onCompareToggle}
+              initialFavorite={isFavorite}
+              initialComparing={isComparing}
+            />
+          </div>
         </div>
         <div className="space-y-1">
           <h3 className="font-semibold text-base leading-tight" data-testid={`text-service-name-${name.toLowerCase().replace(/\s+/g, '-')}`}>

@@ -11,6 +11,7 @@ export const MOCK_SERVICES = [
     rating: "4.8",
     icon: "✨",
     color: "#6366f1",
+    logoUrl: "https://www.jasper.ai/favicon.ico",
     features: [
       "50+ AI templates",
       "SEO mode for optimized content",
@@ -40,6 +41,7 @@ export const MOCK_SERVICES = [
     rating: "4.9",
     icon: "🎨",
     color: "#ec4899",
+    logoUrl: "https://www.canva.com/favicon.ico",
     features: [
       "AI-powered design suggestions",
       "Magic Eraser & Background Remover",
@@ -69,6 +71,7 @@ export const MOCK_SERVICES = [
     rating: "4.7",
     icon: "📝",
     color: "#8b5cf6",
+    logoUrl: "https://www.copy.ai/favicon.ico",
     features: [
       "90+ copywriting tools",
       "Blog post wizard",
@@ -98,6 +101,7 @@ export const MOCK_SERVICES = [
     rating: "4.6",
     icon: "✍️",
     color: "#10b981",
+    logoUrl: "https://www.grammarly.com/favicon.ico",
     features: [
       "Grammar & spelling check",
       "Tone detector",
@@ -123,6 +127,7 @@ export const MOCK_SERVICES = [
     description: "Advanced AI assistant for any task",
     fullDescription: "ChatGPT Plus gives you access to GPT-4, the most advanced AI model for conversations, coding, creative writing, analysis, and problem-solving. With faster response times and priority access during peak hours.",
     category: "chat",
+    logoUrl: "https://chat.openai.com/favicon.ico",
     price: "$20/month",
     rating: "4.9",
     icon: "🤖",
@@ -155,6 +160,7 @@ export const MOCK_SERVICES = [
     rating: "4.5",
     icon: "📱",
     color: "#f59e0b",
+    logoUrl: "https://buffer.com/favicon.ico",
     features: [
       "AI content suggestions",
       "Optimal posting times",

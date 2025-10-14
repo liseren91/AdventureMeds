@@ -28,6 +28,7 @@ export const aiServices = pgTable("ai_services", {
   rating: text("rating").notNull(),
   icon: text("icon").notNull(),
   color: text("color").notNull(),
+  logoUrl: text("logo_url"),
   features: text("features").array().notNull(),
   pricingTiers: jsonb("pricing_tiers").notNull(),
   useCases: text("use_cases").array().notNull(),

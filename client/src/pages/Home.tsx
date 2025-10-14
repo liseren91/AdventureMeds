@@ -81,7 +81,7 @@ export default function Home() {
   };
 
   const handleServiceClick = (serviceId: string) => {
-    console.log('Navigating to service details:', serviceId);
+    window.location.href = `/service/${serviceId}`;
   };
 
   const filteredAndSortedServices = useMemo(() => {

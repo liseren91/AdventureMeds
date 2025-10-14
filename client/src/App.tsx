@@ -11,6 +11,8 @@ import Compare from "@/pages/Compare";
 import History from "@/pages/History";
 import Notifications from "@/pages/Notifications";
 import ServiceDetail from "@/pages/ServiceDetail";
+import CostCalculator from "@/pages/CostCalculator";
+import UseCases from "@/pages/UseCases";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +34,8 @@ function Router() {
         <Route path="/compare" component={Compare} />
         <Route path="/history" component={History} />
         <Route path="/notifications" component={Notifications} />
+        <Route path="/calculator" component={CostCalculator} />
+        <Route path="/use-cases" component={UseCases} />
         <Route path="/service/:id" component={ServiceDetail} />
         <Route component={NotFound} />
       </Switch>

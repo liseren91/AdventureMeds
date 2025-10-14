@@ -1,17 +1,23 @@
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Heart, GitCompare, ExternalLink, Check } from "lucide-react";
 import { useState } from "react";
+import RecommendedServices from "@/components/RecommendedServices";
 
 export default function ServiceDetail() {
   const [, params] = useRoute("/service/:id");
+  const [, setLocation] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
 
   const service = MOCK_SERVICES.find(s => s.id === params?.id);
+
+  const handleRecommendedServiceClick = (serviceId: string) => {
+    setLocation(`/service/${serviceId}`);
+  };
 
   if (!service) {
     return (
@@ -151,16 +157,11 @@ export default function ServiceDetail() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <h2 className="text-xl font-semibold">Related Services</h2>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Discover similar AI tools in the {service.category} category
-            </p>
-          </CardContent>
-        </Card>
+        <RecommendedServices
+          currentServiceId={service.id}
+          category={service.category}
+          onServiceClick={handleRecommendedServiceClick}
+        />
       </div>
     </div>
   );

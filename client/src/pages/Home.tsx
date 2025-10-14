@@ -65,14 +65,18 @@ export default function Home() {
   };
 
   const handleExport = () => {
-    console.log('Exporting services list...');
     const data = filteredAndSortedServices.map(s => ({
       name: s.name,
+      subtitle: s.subtitle,
       category: s.category,
       price: s.price,
       rating: s.rating,
+      website: s.website || '',
     }));
-    console.log('Export data:', data);
+    
+    import('@/lib/exportUtils').then(({ exportToCSV }) => {
+      exportToCSV(data, 'ai-services');
+    });
   };
 
   const handleCompare = () => {

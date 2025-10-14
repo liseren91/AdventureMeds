@@ -45,7 +45,18 @@ export default function Favorites() {
 
   const handleExport = () => {
     const favoriteServices = MOCK_SERVICES.filter(s => favorites.has(s.id));
-    console.log('Exporting favorites:', favoriteServices);
+    const data = favoriteServices.map(s => ({
+      name: s.name,
+      subtitle: s.subtitle,
+      category: s.category,
+      price: s.price,
+      rating: s.rating,
+      website: s.website || '',
+    }));
+    
+    import('@/lib/exportUtils').then(({ exportToCSV }) => {
+      exportToCSV(data, 'my-favorites');
+    });
   };
 
   const handleServiceClick = (serviceId: string) => {

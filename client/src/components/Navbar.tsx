@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Home, GitCompare, History, Bell } from "lucide-react";
+import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -96,6 +96,28 @@ export default function Navbar({
                     {notificationsCount}
                   </Badge>
                 )}
+              </Button>
+            </Link>
+
+            <Link href="/calculator">
+              <Button
+                variant={isActive("/calculator") ? "secondary" : "ghost"}
+                className="gap-2"
+                data-testid="button-nav-calculator"
+              >
+                <Calculator className="h-4 w-4" />
+                Calculator
+              </Button>
+            </Link>
+
+            <Link href="/use-cases">
+              <Button
+                variant={isActive("/use-cases") ? "secondary" : "ghost"}
+                className="gap-2"
+                data-testid="button-nav-usecases"
+              >
+                <Briefcase className="h-4 w-4" />
+                Use Cases
               </Button>
             </Link>
           </div>

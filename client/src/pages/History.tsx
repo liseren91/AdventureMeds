@@ -1,51 +1,41 @@
-import { useState } from "react";
+import { useLocation } from "wouter";
 import ServiceCard from "@/components/ServiceCard";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { useApp } from "@/context/AppContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function History() {
-  //todo: remove mock functionality - get from localStorage or API
-  const [historyIds] = useState<string[]>(["2", "4", "6", "1", "3"]);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [comparing, setComparing] = useState<Set<string>>(new Set());
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const { history, favorites, comparing, toggleFavorite, toggleCompare, clearHistory, addToHistory } = useApp();
+  const historyIds = history;
 
   const handleFavoriteToggle = (serviceId: string, isFavorite: boolean) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (isFavorite) {
-        newFavorites.add(serviceId);
-      } else {
-        newFavorites.delete(serviceId);
-      }
-      return newFavorites;
-    });
+    toggleFavorite(serviceId);
   };
 
   const handleCompareToggle = (serviceId: string, isComparing: boolean) => {
-    setComparing(prev => {
-      const newComparing = new Set(prev);
-      if (isComparing) {
-        if (newComparing.size >= 4) {
-          console.log('Maximum 4 services can be compared');
-          return prev;
-        }
-        newComparing.add(serviceId);
-      } else {
-        newComparing.delete(serviceId);
-      }
-      return newComparing;
-    });
+    const success = toggleCompare(serviceId);
+    if (!success && isComparing) {
+      toast({
+        title: "Comparison limit reached",
+        description: "You can compare up to 4 services at once",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleClearHistory = () => {
     if (confirm('Are you sure you want to clear your viewing history?')) {
-      console.log('Clearing history...');
+      clearHistory();
     }
   };
 
   const handleServiceClick = (serviceId: string) => {
-    console.log('Navigating to service details:', serviceId);
+    addToHistory(serviceId);
+    setLocation(`/service/${serviceId}`);
   };
 
   const historyServices = MOCK_SERVICES.filter(service => historyIds.includes(service.id));

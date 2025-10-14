@@ -1,22 +1,22 @@
-import { useState } from "react";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, X, Check, Minus } from "lucide-react";
+import { useApp } from "@/context/AppContext";
 
 export default function Compare() {
-  //todo: remove mock functionality - get from localStorage or state management
-  const [comparingIds, setComparingIds] = useState<string[]>(["1", "2", "5"]);
+  const { comparing, removeFromCompare, clearCompare } = useApp();
 
   const handleRemove = (serviceId: string) => {
-    setComparingIds(prev => prev.filter(id => id !== serviceId));
+    removeFromCompare(serviceId);
   };
 
   const handleClearAll = () => {
-    setComparingIds([]);
+    clearCompare();
   };
 
+  const comparingIds = Array.from(comparing);
   const comparingServices = MOCK_SERVICES.filter(service => 
     comparingIds.includes(service.id)
   );

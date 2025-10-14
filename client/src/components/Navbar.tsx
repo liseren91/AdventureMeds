@@ -29,23 +29,25 @@ export default function Navbar({
           </Link>
 
           <div className="flex items-center gap-1">
-            <Link href="/">
-              <Button
-                variant={isActive("/") ? "secondary" : "ghost"}
-                className="gap-2"
-                data-testid="button-nav-home"
-              >
+            <Button
+              asChild
+              variant={isActive("/") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-home"
+            >
+              <Link href="/">
                 <Home className="h-4 w-4" />
                 Home
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Link href="/favorites">
-              <Button
-                variant={isActive("/favorites") ? "secondary" : "ghost"}
-                className="gap-2"
-                data-testid="button-nav-favorites"
-              >
+            <Button
+              asChild
+              variant={isActive("/favorites") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-favorites"
+            >
+              <Link href="/favorites">
                 <Heart className="h-4 w-4" />
                 Favorites
                 {favoritesCount > 0 && (
@@ -53,15 +55,16 @@ export default function Navbar({
                     {favoritesCount}
                   </Badge>
                 )}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Link href="/compare">
-              <Button
-                variant={isActive("/compare") ? "secondary" : "ghost"}
-                className="gap-2"
-                data-testid="button-nav-compare"
-              >
+            <Button
+              asChild
+              variant={isActive("/compare") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-compare"
+            >
+              <Link href="/compare">
                 <GitCompare className="h-4 w-4" />
                 Compare
                 {comparingCount > 0 && (
@@ -69,26 +72,28 @@ export default function Navbar({
                     {comparingCount}
                   </Badge>
                 )}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Link href="/history">
-              <Button
-                variant={isActive("/history") ? "secondary" : "ghost"}
-                className="gap-2"
-                data-testid="button-nav-history"
-              >
+            <Button
+              asChild
+              variant={isActive("/history") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-history"
+            >
+              <Link href="/history">
                 <History className="h-4 w-4" />
                 History
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Link href="/notifications">
-              <Button
-                variant={isActive("/notifications") ? "secondary" : "ghost"}
-                className="gap-2 relative"
-                data-testid="button-nav-notifications"
-              >
+            <Button
+              asChild
+              variant={isActive("/notifications") ? "secondary" : "ghost"}
+              className="gap-2 relative"
+              data-testid="button-nav-notifications"
+            >
+              <Link href="/notifications">
                 <Bell className="h-4 w-4" />
                 Notifications
                 {notificationsCount > 0 && (
@@ -96,30 +101,32 @@ export default function Navbar({
                     {notificationsCount}
                   </Badge>
                 )}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Link href="/calculator">
-              <Button
-                variant={isActive("/calculator") ? "secondary" : "ghost"}
-                className="gap-2"
-                data-testid="button-nav-calculator"
-              >
+            <Button
+              asChild
+              variant={isActive("/calculator") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-calculator"
+            >
+              <Link href="/calculator">
                 <Calculator className="h-4 w-4" />
                 Calculator
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Link href="/use-cases">
-              <Button
-                variant={isActive("/use-cases") ? "secondary" : "ghost"}
-                className="gap-2"
-                data-testid="button-nav-usecases"
-              >
+            <Button
+              asChild
+              variant={isActive("/use-cases") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-usecases"
+            >
+              <Link href="/use-cases">
                 <Briefcase className="h-4 w-4" />
                 Use Cases
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

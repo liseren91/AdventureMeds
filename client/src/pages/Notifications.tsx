@@ -1,71 +1,34 @@
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Check, Trash2 } from "lucide-react";
-
-interface Notification {
-  id: string;
-  message: string;
-  category: string;
-  isRead: boolean;
-  createdAt: Date;
-}
+import { useApp } from "@/context/AppContext";
 
 export default function Notifications() {
-  //todo: remove mock functionality - get from API
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      message: "New AI service 'Claude 3' added to the Copywriting category",
-      category: "copywriting",
-      isRead: false,
-      createdAt: new Date(Date.now() - 1000 * 60 * 30),
-    },
-    {
-      id: "2",
-      message: "Price update: ChatGPT Plus is now $25/month",
-      category: "chat",
-      isRead: false,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    },
-    {
-      id: "3",
-      message: "New feature: Canva AI now supports AI video generation",
-      category: "design",
-      isRead: true,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    },
-    {
-      id: "4",
-      message: "5 new services added in the Marketing category",
-      category: "marketing",
-      isRead: true,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-    },
-  ]);
+  const { 
+    notifications, 
+    markNotificationAsRead, 
+    markAllNotificationsAsRead,
+    deleteNotification,
+    clearAllNotifications,
+    unreadNotificationsCount 
+  } = useApp();
 
   const handleMarkAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, isRead: true } : notif
-      )
-    );
+    markNotificationAsRead(id);
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notif => ({ ...notif, isRead: true }))
-    );
+    markAllNotificationsAsRead();
   };
 
   const handleDelete = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
+    deleteNotification(id);
   };
 
   const handleClearAll = () => {
     if (confirm('Are you sure you want to delete all notifications?')) {
-      setNotifications([]);
+      clearAllNotifications();
     }
   };
 
@@ -82,7 +45,7 @@ export default function Notifications() {
     return 'Just now';
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = unreadNotificationsCount;
 
   return (
     <div className="min-h-screen bg-background">

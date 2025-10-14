@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
 import ServiceCard from "@/components/ServiceCard";
@@ -6,8 +7,13 @@ import SortSelect, { type SortOption } from "@/components/SortSelect";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { Download, GitCompare } from "lucide-react";
+import { useApp } from "@/context/AppContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const { favorites, comparing, toggleFavorite, toggleCompare, addToHistory } = useApp();
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [priceFilters, setPriceFilters] = useState({
@@ -17,8 +23,6 @@ export default function Home() {
   });
   const [rating, setRating] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("popularity");
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [comparing, setComparing] = useState<Set<string>>(new Set());
 
   const handlePriceFilterChange = (filter: 'free' | 'freemium' | 'paid') => {
     setPriceFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
@@ -37,31 +41,22 @@ export default function Home() {
   };
 
   const handleFavoriteToggle = (serviceId: string, isFavorite: boolean) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (isFavorite) {
-        newFavorites.add(serviceId);
-      } else {
-        newFavorites.delete(serviceId);
-      }
-      return newFavorites;
-    });
+    if (isFavorite) {
+      toggleFavorite(serviceId);
+    } else {
+      toggleFavorite(serviceId);
+    }
   };
 
   const handleCompareToggle = (serviceId: string, isComparing: boolean) => {
-    setComparing(prev => {
-      const newComparing = new Set(prev);
-      if (isComparing) {
-        if (newComparing.size >= 4) {
-          console.log('Maximum 4 services can be compared');
-          return prev;
-        }
-        newComparing.add(serviceId);
-      } else {
-        newComparing.delete(serviceId);
-      }
-      return newComparing;
-    });
+    const success = toggleCompare(serviceId);
+    if (!success && isComparing) {
+      toast({
+        title: "Comparison limit reached",
+        description: "You can compare up to 4 services at once",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExport = () => {
@@ -85,7 +80,8 @@ export default function Home() {
   };
 
   const handleServiceClick = (serviceId: string) => {
-    window.location.href = `/service/${serviceId}`;
+    addToHistory(serviceId);
+    setLocation(`/service/${serviceId}`);
   };
 
   const filteredAndSortedServices = useMemo(() => {

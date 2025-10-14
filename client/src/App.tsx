@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { AppProvider, useApp } from "@/context/AppContext";
 import Navbar from "@/components/Navbar";
 import Home from "@/pages/Home";
 import Favorites from "@/pages/Favorites";
@@ -16,17 +16,14 @@ import UseCases from "@/pages/UseCases";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  //todo: remove mock functionality - use state management or API
-  const [favoritesCount] = useState(3);
-  const [comparingCount] = useState(2);
-  const [notificationsCount] = useState(2);
+  const { favorites, comparing, unreadNotificationsCount } = useApp();
 
   return (
     <div className="min-h-screen">
       <Navbar
-        favoritesCount={favoritesCount}
-        comparingCount={comparingCount}
-        notificationsCount={notificationsCount}
+        favoritesCount={favorites.size}
+        comparingCount={comparing.size}
+        notificationsCount={unreadNotificationsCount}
       />
       <Switch>
         <Route path="/" component={Home} />
@@ -46,10 +43,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AppProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AppProvider>
     </QueryClientProvider>
   );
 }

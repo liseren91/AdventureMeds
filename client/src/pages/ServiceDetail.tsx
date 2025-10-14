@@ -4,16 +4,24 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Heart, GitCompare, ExternalLink, Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect } from "react";
 import RecommendedServices from "@/components/RecommendedServices";
+import { useApp } from "@/context/AppContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ServiceDetail() {
   const [, params] = useRoute("/service/:id");
   const [, setLocation] = useLocation();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isComparing, setIsComparing] = useState(false);
+  const { toast } = useToast();
+  const { favorites, comparing, toggleFavorite, toggleCompare, addToHistory } = useApp();
 
   const service = MOCK_SERVICES.find(s => s.id === params?.id);
+
+  useEffect(() => {
+    if (service) {
+      addToHistory(service.id);
+    }
+  }, [service?.id]);
 
   const handleRecommendedServiceClick = (serviceId: string) => {
     setLocation(`/service/${serviceId}`);
@@ -31,14 +39,26 @@ export default function ServiceDetail() {
   }
 
   const handleFavoriteToggle = () => {
-    setIsFavorite(!isFavorite);
-    console.log(`${service.name} ${!isFavorite ? 'added to' : 'removed from'} favorites`);
+    if (service) {
+      toggleFavorite(service.id);
+    }
   };
 
   const handleCompareToggle = () => {
-    setIsComparing(!isComparing);
-    console.log(`${service.name} ${!isComparing ? 'added to' : 'removed from'} comparison`);
+    if (service) {
+      const success = toggleCompare(service.id);
+      if (!success && !comparing.has(service.id)) {
+        toast({
+          title: "Comparison limit reached",
+          description: "You can compare up to 4 services at once",
+          variant: "destructive",
+        });
+      }
+    }
   };
+
+  const isFavorite = service ? favorites.has(service.id) : false;
+  const isComparing = service ? comparing.has(service.id) : false;
 
   return (
     <div className="min-h-screen bg-background">

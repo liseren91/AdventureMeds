@@ -13,6 +13,7 @@ interface AppContextType {
   comparing: Set<string>;
   history: string[];
   notifications: Notification[];
+  selectedCategory: string;
   addFavorite: (id: string) => void;
   removeFavorite: (id: string) => void;
   toggleFavorite: (id: string) => void;
@@ -28,6 +29,7 @@ interface AppContextType {
   deleteNotification: (id: string) => void;
   clearAllNotifications: () => void;
   unreadNotificationsCount: number;
+  setSelectedCategory: (category: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -73,6 +75,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       },
     ];
   });
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(Array.from(favorites)));
@@ -183,6 +187,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     comparing,
     history,
     notifications,
+    selectedCategory,
     addFavorite,
     removeFavorite,
     toggleFavorite,
@@ -198,6 +203,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     deleteNotification,
     clearAllNotifications,
     unreadNotificationsCount,
+    setSelectedCategory,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

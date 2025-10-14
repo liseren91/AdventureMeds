@@ -13,7 +13,7 @@ export default function ServiceDetail() {
   const [, params] = useRoute("/service/:id");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { favorites, comparing, toggleFavorite, toggleCompare, addToHistory } = useApp();
+  const { favorites, comparing, toggleFavorite, toggleCompare, addToHistory, setSelectedCategory } = useApp();
 
   const service = MOCK_SERVICES.find(s => s.id === params?.id);
 
@@ -127,7 +127,18 @@ export default function ServiceDetail() {
                     <span className="font-semibold text-lg">{service.rating}</span>
                   </div>
                   <Badge variant="secondary" className="text-sm">{service.price}</Badge>
-                  <Badge variant="outline" className="text-sm capitalize">{service.category}</Badge>
+                  <Badge 
+                    variant="outline" 
+                    className="text-sm capitalize cursor-pointer hover-elevate" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCategory(service.category);
+                      setLocation('/');
+                    }}
+                    data-testid="badge-category"
+                  >
+                    {service.category}
+                  </Badge>
                   {service.website && (
                     <a href={service.website} target="_blank" rel="noopener noreferrer">
                       <Button variant="ghost" className="gap-2 px-2">

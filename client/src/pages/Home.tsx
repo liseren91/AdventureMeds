@@ -13,9 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 export default function Home() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { favorites, comparing, toggleFavorite, toggleCompare, addToHistory } = useApp();
+  const { favorites, comparing, selectedCategory, setSelectedCategory, toggleFavorite, toggleCompare, addToHistory } = useApp();
   const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState("all");
   const [priceFilters, setPriceFilters] = useState({
     free: false,
     freemium: true,
@@ -29,7 +28,7 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    setCategory("all");
+    setSelectedCategory("all");
     setPriceFilters({ free: false, freemium: false, paid: false });
     setRating("");
     setSearchQuery("");
@@ -90,7 +89,7 @@ export default function Home() {
         service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesCategory = category === "all" || service.category === category;
+      const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
 
       const matchesPrice = 
         (!priceFilters.free && !priceFilters.freemium && !priceFilters.paid) ||
@@ -133,7 +132,7 @@ export default function Home() {
           return 0;
       }
     });
-  }, [searchQuery, category, priceFilters, rating, sortBy]);
+  }, [searchQuery, selectedCategory, priceFilters, rating, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,8 +165,8 @@ export default function Home() {
         <div className="flex gap-8">
           <aside className="flex-shrink-0">
             <FilterPanel
-              category={category}
-              onCategoryChange={setCategory}
+              category={selectedCategory}
+              onCategoryChange={setSelectedCategory}
               priceFilters={priceFilters}
               onPriceFilterChange={handlePriceFilterChange}
               rating={rating}

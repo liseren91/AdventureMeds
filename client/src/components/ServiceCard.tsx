@@ -12,6 +12,7 @@ interface ServiceCardProps {
   rating: string;
   icon: string;
   color: string;
+  logoUrl?: string;
   onFavoriteToggle?: (serviceId: string, isFavorite: boolean) => void;
   onCompareToggle?: (serviceId: string, isComparing: boolean) => void;
   onClick?: () => void;
@@ -28,6 +29,7 @@ export default function ServiceCard({
   rating,
   icon,
   color,
+  logoUrl,
   onFavoriteToggle,
   onCompareToggle,
   onClick,
@@ -43,10 +45,27 @@ export default function ServiceCard({
       <CardHeader className="space-y-3 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div 
-            className="flex items-center justify-center h-12 w-12 rounded-md text-2xl flex-shrink-0"
-            style={{ backgroundColor: color }}
+            className="flex items-center justify-center h-12 w-12 rounded-md overflow-hidden flex-shrink-0"
+            style={{ backgroundColor: logoUrl ? '#ffffff' : color }}
           >
-            {icon}
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={`${name} logo`} 
+                className="h-8 w-8 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.style.backgroundColor = color;
+                    parent.innerHTML = `<span class="text-2xl font-bold text-white">${name.charAt(0)}</span>`;
+                  }
+                }}
+              />
+            ) : (
+              <span className="text-2xl font-bold text-white">{name.charAt(0)}</span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>

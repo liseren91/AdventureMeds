@@ -77,6 +77,7 @@ export default function History() {
                 rating={service.rating}
                 icon={service.icon}
                 color={service.color}
+                logoUrl={service.logoUrl}
                 onFavoriteToggle={handleFavoriteToggle}
                 onCompareToggle={handleCompareToggle}
                 onClick={() => handleServiceClick(service.id)}

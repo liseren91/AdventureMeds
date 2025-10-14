@@ -38,6 +38,7 @@ export default function RecommendedServices({
             rating={service.rating}
             icon={service.icon}
             color={service.color}
+            logoUrl={service.logoUrl}
             onClick={() => onServiceClick(service.id)}
           />
         ))}

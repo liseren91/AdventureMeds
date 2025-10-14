@@ -67,10 +67,27 @@ export default function ServiceDetail() {
           <CardHeader className="space-y-6 pb-6">
             <div className="flex items-start gap-6">
               <div 
-                className="flex items-center justify-center h-24 w-24 rounded-md text-4xl flex-shrink-0"
-                style={{ backgroundColor: service.color }}
+                className="flex items-center justify-center h-24 w-24 rounded-md overflow-hidden flex-shrink-0"
+                style={{ backgroundColor: service.logoUrl ? '#ffffff' : service.color }}
               >
-                {service.icon}
+                {service.logoUrl ? (
+                  <img 
+                    src={service.logoUrl} 
+                    alt={`${service.name} logo`} 
+                    className="h-16 w-16 object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.style.backgroundColor = service.color;
+                        parent.innerHTML = `<span class="text-4xl font-bold text-white">${service.name.charAt(0)}</span>`;
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="text-4xl font-bold text-white">{service.name.charAt(0)}</span>
+                )}
               </div>
 
               <div className="flex-1 min-w-0">

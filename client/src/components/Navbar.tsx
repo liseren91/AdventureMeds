@@ -22,11 +22,9 @@ export default function Navbar({
     <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-          <Link href="/">
-            <a className="text-2xl font-bold hover-elevate px-3 py-2 rounded-md transition-colors" data-testid="link-home-logo">
-              AI<span className="text-primary">for</span>Business
-            </a>
-          </Link>
+          <a href="/" className="text-2xl font-bold hover-elevate px-3 py-2 rounded-md transition-colors" data-testid="link-home-logo">
+            AI<span className="text-primary">for</span>Business
+          </a>
 
           <div className="flex items-center gap-1">
             <Button

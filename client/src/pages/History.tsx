@@ -18,7 +18,7 @@ export default function History() {
 
   const handleCompareToggle = (serviceId: string, isComparing: boolean) => {
     const success = toggleCompare(serviceId);
-    if (!success && isComparing) {
+    if (!success) {
       toast({
         title: "Comparison limit reached",
         description: "You can compare up to 4 services at once",

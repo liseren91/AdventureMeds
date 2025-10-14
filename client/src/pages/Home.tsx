@@ -37,7 +37,7 @@ export default function Home() {
   };
 
   const handleSearch = () => {
-    console.log('Search triggered:', searchQuery);
+    // Search is triggered automatically via filteredAndSortedServices
   };
 
   const handleFavoriteToggle = (serviceId: string, isFavorite: boolean) => {
@@ -50,7 +50,7 @@ export default function Home() {
 
   const handleCompareToggle = (serviceId: string, isComparing: boolean) => {
     const success = toggleCompare(serviceId);
-    if (!success && isComparing) {
+    if (!success) {
       toast({
         title: "Comparison limit reached",
         description: "You can compare up to 4 services at once",
@@ -75,8 +75,7 @@ export default function Home() {
   };
 
   const handleCompare = () => {
-    const servicesToCompare = Array.from(comparing);
-    console.log('Comparing services:', servicesToCompare);
+    // Navigate to compare page - comparing state is already managed globally
   };
 
   const handleServiceClick = (serviceId: string) => {

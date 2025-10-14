@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import RecommendedServices from "@/components/RecommendedServices";
 import { useApp } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatPrice } from "@/lib/utils";
 
 export default function ServiceDetail() {
   const [, params] = useRoute("/service/:id");
@@ -126,7 +127,7 @@ export default function ServiceDetail() {
                     <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
                     <span className="font-semibold text-lg">{service.rating}</span>
                   </div>
-                  <Badge variant="secondary" className="text-sm">{service.price}</Badge>
+                  <Badge variant="secondary" className="text-sm">{formatPrice(service.price)}</Badge>
                   <Badge 
                     variant="outline" 
                     className="text-sm capitalize cursor-pointer hover-elevate" 

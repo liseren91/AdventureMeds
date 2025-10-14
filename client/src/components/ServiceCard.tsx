@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 import ServiceCardActions from "./ServiceCardActions";
+import { formatPrice } from "@/lib/utils";
 
 interface ServiceCardProps {
   id: string;
@@ -69,7 +70,7 @@ export default function ServiceCard({
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>
-              {price}
+              {formatPrice(price)}
             </Badge>
             <ServiceCardActions
               serviceId={id}

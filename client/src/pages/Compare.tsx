@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, X, Check, Minus } from "lucide-react";
 import { useApp } from "@/context/AppContext";
+import { formatPrice } from "@/lib/utils";
 
 export default function Compare() {
   const { comparing, removeFromCompare, clearCompare } = useApp();
@@ -131,7 +132,7 @@ export default function Compare() {
                           <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                           <span className="font-medium">{service.rating}</span>
                         </div>
-                        <Badge variant="secondary">{service.price}</Badge>
+                        <Badge variant="secondary">{formatPrice(service.price)}</Badge>
                         <p className="text-muted-foreground capitalize">{service.category}</p>
                       </div>
                     </Card>

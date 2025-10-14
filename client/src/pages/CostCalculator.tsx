@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/utils";
 
 export default function CostCalculator() {
   const [teamSize, setTeamSize] = useState(1);
@@ -28,7 +29,8 @@ export default function CostCalculator() {
   const getPricePerUser = (price: string): number => {
     if (price === 'Free') return 0;
     if (price === 'Freemium') return 0;
-    const match = price.match(/\$(\d+)/);
+    const cleanPrice = price.replace('From ', '');
+    const match = cleanPrice.match(/\$(\d+)/);
     return match ? parseInt(match[1]) : 0;
   };
 
@@ -107,7 +109,7 @@ export default function CostCalculator() {
                             <h3 className="font-semibold text-sm">{service.name}</h3>
                             <div className="flex items-center gap-2 mt-1">
                               <Badge variant="secondary" className="text-xs">
-                                {service.price}
+                                {formatPrice(service.price)}
                               </Badge>
                               {pricePerUser > 0 && (
                                 <span className="text-xs text-muted-foreground">

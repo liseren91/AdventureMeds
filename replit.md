@@ -77,6 +77,9 @@ Preferred communication style: Simple, everyday language.
 - **View History:** Tracking of viewed services per user
 - **Comparisons:** Saved service comparisons
 - **Notifications:** User notification system with read/unread status
+- **Payers:** Legal entities and individuals with balance tracking (companyName/inn/kpp for companies, firstName/lastName/passportNumber for individuals)
+- **Transactions:** Financial operations (deposit/withdrawal/purchase) with amount, date, comment, and optional service reference
+- **Purchases:** Service subscriptions linked to payers with billing cycle and status tracking
 
 **Storage Abstraction:**
 - IStorage interface defining CRUD operations
@@ -88,10 +91,16 @@ Preferred communication style: Simple, everyday language.
 
 **Purchase Flow:**
 - `PurchaseDialog.tsx`: 3-step purchase modal (select plan → confirm → success)
-- Integrated with ServiceDetail page via "Subscribe Now" button
+- Integrated with ServiceDetail page via "Subscribe Now" button and "Купить" buttons on service cards
 - Supports monthly/yearly billing cycle toggle with 20% yearly discount indicator
 - Plan selection via radio groups with visual feedback
-- localStorage-based purchase persistence (no backend required)
+- **Payer Integration:**
+  - Payer selection dropdown on confirm step
+  - Real-time balance checking with insufficient funds warning
+  - Automatic balance deduction on successful purchase
+  - Transaction recording for audit trail
+  - Purchase linked to payer for service tracking
+- localStorage-based persistence for payers, transactions, and purchases (frontend-only, no backend)
 
 **Account Management:**
 - `Account.tsx`: Personal cabinet with 4 tabs (Overview, My Services, History, Settings)
@@ -150,6 +159,24 @@ Preferred communication style: Simple, everyday language.
   - Payment method display (UI only, no real payment processing)
   - Tab-based navigation: Overview, My Services, Purchase History, Settings
   - localStorage persistence for all purchase data (frontend only, no backend)
+- **Finances/Payer Management (Frontend Only)**:
+  - Multi-entity payer system supporting both legal entities (companies) and individuals
+  - **Payer Cards**: Display balance, type, associated services, and fund sufficiency indicators
+  - **Payer Creation (AddPayerDialog)**: 
+    - Company payers: companyName, INN, KPP fields
+    - Individual payers: firstName, lastName, passportNumber fields
+  - **Balance Management**:
+    - Top-up funds via multiple payment methods (card, invoice, ЮMoney, СБП, SberPay)
+    - Withdraw funds with method selection
+    - Real-time balance updates across all components
+  - **Service Tracking**: View all services purchased by each payer
+  - **Transaction History**: Complete audit trail of deposits, withdrawals, and purchases
+  - **Purchase Integration**: 
+    - Select payer during checkout with balance validation
+    - Automatic fund deduction on successful purchase
+    - Insufficient funds warning with alternative payer suggestion
+  - Navigation via Wallet icon in navbar between Job Impact and Account
+  - localStorage persistence for payers and transactions (frontend only, no backend)
 - Breadcrumb navigation on all pages for easy wayfinding
 
 **Data Export:**

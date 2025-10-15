@@ -16,10 +16,30 @@ import UseCases from "@/pages/UseCases";
 import JobImpact from "@/pages/JobImpact";
 import Account from "@/pages/Account";
 import Finances from "@/pages/Finances";
+import Cart from "@/pages/Cart";
 import NotFound from "@/pages/not-found";
+import { useState, useEffect } from "react";
+import { getCartFromStorage } from "@/lib/cartData";
 
 function Router() {
   const { favorites, comparing, unreadNotificationsCount } = useApp();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      setCartCount(getCartFromStorage().length);
+    };
+    
+    updateCartCount();
+    
+    window.addEventListener("storage", updateCartCount);
+    const interval = setInterval(updateCartCount, 1000);
+    
+    return () => {
+      window.removeEventListener("storage", updateCartCount);
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -27,6 +47,7 @@ function Router() {
         favoritesCount={favorites.size}
         comparingCount={comparing.size}
         notificationsCount={unreadNotificationsCount}
+        cartCount={cartCount}
       />
       <Switch>
         <Route path="/" component={Home} />
@@ -39,6 +60,7 @@ function Router() {
         <Route path="/job-impact" component={JobImpact} />
         <Route path="/account" component={Account} />
         <Route path="/finances" component={Finances} />
+        <Route path="/cart" component={Cart} />
         <Route path="/service/:id" component={ServiceDetail} />
         <Route component={NotFound} />
       </Switch>

@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Star, Heart, GitCompare, ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useState } from "react";
-import PurchaseDialog from "./PurchaseDialog";
 import { MOCK_SERVICES } from "@/lib/mockData";
+import { addToCart } from "@/lib/cartData";
+import { useToast } from "@/hooks/use-toast";
 
 interface ServiceCardProps {
   id: string;
@@ -42,7 +43,7 @@ export default function ServiceCard({
 }: ServiceCardProps) {
   const [favorite, setFavorite] = useState(isFavorite);
   const [comparing, setComparing] = useState(isComparing);
-  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -60,13 +61,33 @@ export default function ServiceCard({
     onCompareToggle?.(id, newComparing);
   };
 
-  const handleBuyClick = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setPurchaseDialogOpen(true);
-  };
+    
+    const service = MOCK_SERVICES.find(s => s.id === id);
+    if (!service) return;
 
-  const service = MOCK_SERVICES.find(s => s.id === id);
+    const defaultPlanIndex = Math.floor(service.pricingTiers.length / 2);
+    const defaultPlan = service.pricingTiers[defaultPlanIndex];
+    const priceValue = parseFloat(defaultPlan.price.replace(/[^0-9.]/g, '')) || 0;
+
+    addToCart({
+      serviceId: id,
+      serviceName: name,
+      serviceLogoUrl: logoUrl,
+      serviceColor: color,
+      planIndex: defaultPlanIndex,
+      planName: defaultPlan.name,
+      price: priceValue,
+      billingCycle: "monthly",
+    });
+
+    toast({
+      title: "Добавлено в корзину",
+      description: `${name} - ${defaultPlan.name}`,
+    });
+  };
 
   return (
     <Card 
@@ -140,30 +161,16 @@ export default function ServiceCard({
             <Button
               size="sm"
               variant="default"
-              onClick={handleBuyClick}
+              onClick={handleAddToCart}
               className="gap-2"
-              data-testid={`button-buy-${id}`}
+              data-testid={`button-add-to-cart-${id}`}
             >
               <ShoppingCart className="h-4 w-4" />
-              Купить
+              В корзину
             </Button>
           </div>
         </div>
       </CardContent>
-
-      {service && (
-        <PurchaseDialog
-          service={{
-            id: service.id,
-            name: service.name,
-            logoUrl: service.logoUrl,
-            color: service.color,
-            pricingTiers: service.pricingTiers,
-          }}
-          open={purchaseDialogOpen}
-          onOpenChange={setPurchaseDialogOpen}
-        />
-      )}
     </Card>
   );
 }

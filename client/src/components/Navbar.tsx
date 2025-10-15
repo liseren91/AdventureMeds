@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User, Wallet } from "lucide-react";
+import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User, Wallet, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -7,12 +7,14 @@ interface NavbarProps {
   favoritesCount?: number;
   comparingCount?: number;
   notificationsCount?: number;
+  cartCount?: number;
 }
 
 export default function Navbar({ 
   favoritesCount = 0, 
   comparingCount = 0,
-  notificationsCount = 0
+  notificationsCount = 0,
+  cartCount = 0
 }: NavbarProps) {
   const [location] = useLocation();
 
@@ -147,6 +149,23 @@ export default function Navbar({
               <Link href="/finances">
                 <Wallet className="h-4 w-4" />
                 Finances
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/cart") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-cart"
+            >
+              <Link href="/cart">
+                <ShoppingCart className="h-4 w-4" />
+                Cart
+                {cartCount > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {cartCount}
+                  </Badge>
+                )}
               </Link>
             </Button>
 

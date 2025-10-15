@@ -272,3 +272,196 @@ export const MOCK_SERVICES = [
     commonUseCases: ["Design", "Marketing", "Social Media"],
   },
 ];
+
+export interface Job {
+  id: string;
+  title: string;
+  aiImpact: number; // 0-100
+  tasksCount: number;
+  aisCount: number;
+  category: string;
+  description: string;
+}
+
+export const MOCK_JOBS: Job[] = [
+  {
+    id: "1",
+    title: "Content Writer",
+    aiImpact: 85,
+    tasksCount: 12,
+    aisCount: 8,
+    category: "Creative",
+    description: "Creates written content for websites, blogs, and marketing materials"
+  },
+  {
+    id: "2",
+    title: "Graphic Designer",
+    aiImpact: 72,
+    tasksCount: 15,
+    aisCount: 10,
+    category: "Creative",
+    description: "Designs visual content for digital and print media"
+  },
+  {
+    id: "3",
+    title: "Software Developer",
+    aiImpact: 68,
+    tasksCount: 20,
+    aisCount: 12,
+    category: "Technology",
+    description: "Develops and maintains software applications"
+  },
+  {
+    id: "4",
+    title: "Data Analyst",
+    aiImpact: 78,
+    tasksCount: 14,
+    aisCount: 9,
+    category: "Analytics",
+    description: "Analyzes data to provide business insights"
+  },
+  {
+    id: "5",
+    title: "Marketing Manager",
+    aiImpact: 65,
+    tasksCount: 18,
+    aisCount: 11,
+    category: "Marketing",
+    description: "Plans and executes marketing strategies"
+  },
+  {
+    id: "6",
+    title: "Customer Support Agent",
+    aiImpact: 82,
+    tasksCount: 10,
+    aisCount: 7,
+    category: "Service",
+    description: "Provides customer service and support"
+  },
+  {
+    id: "7",
+    title: "Social Media Manager",
+    aiImpact: 88,
+    tasksCount: 13,
+    aisCount: 9,
+    category: "Marketing",
+    description: "Manages social media presence and engagement"
+  },
+  {
+    id: "8",
+    title: "SEO Specialist",
+    aiImpact: 76,
+    tasksCount: 11,
+    aisCount: 8,
+    category: "Marketing",
+    description: "Optimizes websites for search engine visibility"
+  },
+  {
+    id: "9",
+    title: "Video Editor",
+    aiImpact: 70,
+    tasksCount: 16,
+    aisCount: 6,
+    category: "Creative",
+    description: "Edits and produces video content"
+  },
+  {
+    id: "10",
+    title: "Product Manager",
+    aiImpact: 55,
+    tasksCount: 22,
+    aisCount: 10,
+    category: "Management",
+    description: "Manages product development and strategy"
+  },
+  {
+    id: "11",
+    title: "Email Marketing Specialist",
+    aiImpact: 80,
+    tasksCount: 9,
+    aisCount: 7,
+    category: "Marketing",
+    description: "Creates and manages email marketing campaigns"
+  },
+  {
+    id: "12",
+    title: "Translator",
+    aiImpact: 90,
+    tasksCount: 8,
+    aisCount: 6,
+    category: "Language",
+    description: "Translates content between languages"
+  },
+  {
+    id: "13",
+    title: "UX/UI Designer",
+    aiImpact: 60,
+    tasksCount: 17,
+    aisCount: 9,
+    category: "Design",
+    description: "Designs user interfaces and experiences"
+  },
+  {
+    id: "14",
+    title: "Copywriter",
+    aiImpact: 87,
+    tasksCount: 10,
+    aisCount: 8,
+    category: "Creative",
+    description: "Writes persuasive marketing and advertising copy"
+  },
+  {
+    id: "15",
+    title: "Financial Analyst",
+    aiImpact: 73,
+    tasksCount: 15,
+    aisCount: 8,
+    category: "Finance",
+    description: "Analyzes financial data and trends"
+  },
+  {
+    id: "16",
+    title: "HR Recruiter",
+    aiImpact: 58,
+    tasksCount: 12,
+    aisCount: 6,
+    category: "Human Resources",
+    description: "Recruits and screens job candidates"
+  },
+  {
+    id: "17",
+    title: "Business Analyst",
+    aiImpact: 64,
+    tasksCount: 16,
+    aisCount: 9,
+    category: "Analytics",
+    description: "Analyzes business processes and requirements"
+  },
+  {
+    id: "18",
+    title: "Content Strategist",
+    aiImpact: 75,
+    tasksCount: 14,
+    aisCount: 10,
+    category: "Marketing",
+    description: "Plans content strategies and editorial calendars"
+  },
+  {
+    id: "19",
+    title: "Legal Assistant",
+    aiImpact: 62,
+    tasksCount: 13,
+    aisCount: 5,
+    category: "Legal",
+    description: "Assists lawyers with legal research and documentation"
+  },
+  {
+    id: "20",
+    title: "Research Analyst",
+    aiImpact: 71,
+    tasksCount: 12,
+    aisCount: 8,
+    category: "Research",
+    description: "Conducts research and prepares reports"
+  }
+];

@@ -155,10 +155,10 @@ export default function Finances() {
                         </div>
                         <div>
                           <h3 className="font-semibold" data-testid={`text-payer-name-${payer.id}`}>
-                            {payer.name}
+                            {payer.type === "company" ? payer.companyName : `${payer.firstName} ${payer.lastName}`}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            {payer.type === "company" ? "Тип: company" : "Тип: individual"}
+                            {payer.type === "company" ? "Юридическое лицо" : "Физическое лицо"}
                           </p>
                         </div>
                       </div>
@@ -211,7 +211,7 @@ export default function Finances() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">
-                Сервисы плательщика: {selectedPayer.name}
+                Сервисы плательщика: {selectedPayer.type === "company" ? selectedPayer.companyName : `${selectedPayer.firstName} ${selectedPayer.lastName}`}
               </h2>
               <Button 
                 variant="outline" 

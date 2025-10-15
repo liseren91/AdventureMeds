@@ -1,18 +1,27 @@
 export interface Payer {
   id: string;
   type: "company" | "individual";
-  name: string;
   balance: number;
-  services: string[]; // service IDs
+  services?: string[]; // service IDs
+  // Company fields
+  companyName?: string;
+  inn?: string;
+  kpp?: string;
+  // Individual fields
+  firstName?: string;
+  lastName?: string;
+  passportNumber?: string;
 }
 
 export interface Transaction {
   id: string;
   payerId: string;
   date: string;
-  type: "deposit" | "withdrawal";
+  type: "deposit" | "withdrawal" | "purchase";
   amount: number;
   comment: string;
+  serviceId?: string;
+  serviceName?: string;
 }
 
 export interface Purchase {
@@ -30,14 +39,18 @@ export const MOCK_PAYERS: Payer[] = [
   {
     id: "payer-1",
     type: "company",
-    name: 'ООО "Ай Хант"',
+    companyName: 'ООО "Ай Хант"',
+    inn: "7707083893",
+    kpp: "770701001",
     balance: 150000,
     services: ["chatgpt", "midjourney", "claude"],
   },
   {
     id: "payer-2",
     type: "individual",
-    name: "Иван Иванов",
+    firstName: "Иван",
+    lastName: "Иванов",
+    passportNumber: "1234 567890",
     balance: 1200,
     services: ["chatgpt"],
   },

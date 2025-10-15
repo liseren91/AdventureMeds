@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,11 +10,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingBag, CheckCircle2, CreditCard } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { Payer, Transaction } from "@/lib/payersData";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PricingTier {
   name: string;
@@ -44,11 +52,35 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const [step, setStep] = useState<"select" | "confirm" | "success">("select");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [payers, setPayers] = useState<Payer[]>([]);
+  const [selectedPayerId, setSelectedPayerId] = useState<string>("");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("payers");
+    if (stored) {
+      const payersData = JSON.parse(stored);
+      setPayers(payersData);
+      if (payersData.length > 0 && !selectedPayerId) {
+        setSelectedPayerId(payersData[0].id);
+      }
+    }
+  }, [open]);
+
+  const selectedPayer = payers.find(p => p.id === selectedPayerId);
+  const tier = service.pricingTiers[selectedPlan];
+  const priceValue = parseFloat(tier.price.replace(/[^0-9.]/g, '')) || 0;
+  const hasInsufficientFunds = selectedPayer ? selectedPayer.balance < priceValue : true;
 
   const handlePurchase = () => {
-    const tier = service.pricingTiers[selectedPlan];
-    const priceValue = parseFloat(tier.price.replace(/[^0-9.]/g, '')) || 0;
-    
+    if (!selectedPayer || hasInsufficientFunds) {
+      toast({
+        title: "Insufficient funds",
+        description: "Selected payer doesn't have enough balance",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const purchase = {
       id: Date.now().toString(),
       serviceId: service.id,
@@ -57,12 +89,36 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
       purchaseDate: new Date().toISOString(),
       status: "active" as const,
       billingCycle: billingCycle,
+      payerId: selectedPayerId,
     };
 
     const existing = localStorage.getItem("userPurchases");
     const purchases = existing ? JSON.parse(existing) : [];
     purchases.push(purchase);
     localStorage.setItem("userPurchases", JSON.stringify(purchases));
+
+    // Deduct from payer balance
+    const updatedPayers = payers.map(p => 
+      p.id === selectedPayerId ? { ...p, balance: p.balance - priceValue } : p
+    );
+    setPayers(updatedPayers);
+    localStorage.setItem("payers", JSON.stringify(updatedPayers));
+
+    // Add transaction
+    const newTransaction: Transaction = {
+      id: Date.now().toString(),
+      payerId: selectedPayerId,
+      date: new Date().toISOString(),
+      type: "purchase",
+      amount: priceValue,
+      comment: `Покупка ${service.name} - ${tier.name}`,
+      serviceId: service.id,
+      serviceName: service.name,
+    };
+    const existingTransactions = localStorage.getItem("transactions");
+    const transactions = existingTransactions ? JSON.parse(existingTransactions) : [];
+    transactions.push(newTransaction);
+    localStorage.setItem("transactions", JSON.stringify(transactions));
 
     setStep("success");
     
@@ -264,20 +320,72 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
-                    <h3 className="font-semibold">Payment Method</h3>
+                    <h3 className="font-semibold">Плательщик</h3>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between p-4 border border-border rounded-md">
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">Visa ending in 4242</p>
-                        <p className="text-sm text-muted-foreground">Expires 12/2025</p>
-                      </div>
+                <CardContent className="space-y-4">
+                  {payers.length > 0 ? (
+                    <>
+                      <Select value={selectedPayerId} onValueChange={setSelectedPayerId}>
+                        <SelectTrigger data-testid="select-payer">
+                          <SelectValue placeholder="Выберите плательщика" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {payers.map((payer) => (
+                            <SelectItem key={payer.id} value={payer.id}>
+                              <div className="flex items-center gap-2">
+                                {payer.type === "company" ? (
+                                  <Building2 className="h-4 w-4" />
+                                ) : (
+                                  <User className="h-4 w-4" />
+                                )}
+                                <span>
+                                  {payer.type === "company" ? payer.companyName : `${payer.firstName} ${payer.lastName}`}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      {selectedPayer && (
+                        <div className="p-4 border border-border rounded-md space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Текущий баланс:</span>
+                            <span className="font-semibold">${selectedPayer.balance.toFixed(2)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Стоимость:</span>
+                            <span className="font-semibold">${priceValue.toFixed(2)}</span>
+                          </div>
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <span className="text-sm text-muted-foreground">Остаток после покупки:</span>
+                            <span className={`font-semibold ${hasInsufficientFunds ? 'text-destructive' : ''}`}>
+                              ${(selectedPayer.balance - priceValue).toFixed(2)}
+                            </span>
+                          </div>
+                          
+                          {hasInsufficientFunds && (
+                            <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md mt-3">
+                              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                              <div>
+                                <p className="text-sm font-medium text-destructive">Недостаточно средств</p>
+                                <p className="text-xs text-destructive/80 mt-1">
+                                  Пополните баланс плательщика на ${(priceValue - selectedPayer.balance).toFixed(2)} или выберите другого плательщика
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="p-4 bg-muted rounded-md text-center">
+                      <p className="text-sm text-muted-foreground">
+                        У вас пока нет плательщиков. Создайте плательщика в разделе <a href="/finances" className="text-primary underline">Финансы</a>
+                      </p>
                     </div>
-                    <Badge>Default</Badge>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -285,7 +393,11 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                 <Button variant="outline" onClick={() => setStep("select")} data-testid="button-back-purchase">
                   Back
                 </Button>
-                <Button onClick={handlePurchase} data-testid="button-confirm-purchase">
+                <Button 
+                  onClick={handlePurchase} 
+                  disabled={hasInsufficientFunds || !selectedPayer}
+                  data-testid="button-confirm-purchase"
+                >
                   Confirm Purchase
                 </Button>
               </div>

@@ -118,7 +118,13 @@ Preferred communication style: Simple, everyday language.
 
 **Core Functionality:**
 - Service catalog browsing with grid layout (3 columns × 2 rows per page)
-- "Купить" (Buy) button on each service card for quick purchase access
+- **Shopping Cart System (Frontend Only)**:
+  - "В корзину" button on each service card adds middle-tier plan with monthly billing by default
+  - Cart icon in navbar with live counter badge showing number of items
+  - Cart page (`/cart`) displays all cart items with ability to remove individual items
+  - CheckoutDialog integrates with payer system for batch purchases
+  - Automatic cart clearing on successful purchase
+  - localStorage persistence for cart items (frontend only, no backend)
 - **Advanced Filtering System with 7 Categories:**
   - **Features Filter**: Multi-select with AND logic (service must have all selected features)
   - **Use Cases Filter**: Multi-select with OR logic (service must match at least one use case)

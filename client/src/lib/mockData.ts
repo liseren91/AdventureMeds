@@ -33,6 +33,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["Browser Extension", "Team Collaboration", "Multi-language", "SEO Tools"],
     commonUseCases: ["Content Marketing", "SEO", "Social Media", "Email Marketing"],
+    jobTitles: ["Content Writer", "Marketing Manager", "Social Media Manager"],
   },
   {
     id: "2",
@@ -67,6 +68,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["Team Collaboration", "Mobile App", "Integrations"],
     commonUseCases: ["Design", "Social Media", "Marketing"],
+    jobTitles: ["Graphic Designer", "Social Media Manager", "Marketing Manager"],
   },
   {
     id: "3",
@@ -101,6 +103,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["API Access", "Team Collaboration"],
     commonUseCases: ["Marketing", "Email Marketing", "Content Marketing"],
+    jobTitles: ["Marketing Manager", "Content Writer"],
   },
   {
     id: "4",
@@ -135,6 +138,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["Browser Extension", "Integrations", "Mobile App"],
     commonUseCases: ["Content Marketing", "Email Marketing"],
+    jobTitles: ["Content Writer", "Customer Support Agent"],
   },
   {
     id: "5",
@@ -168,6 +172,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["API Access", "Mobile App"],
     commonUseCases: ["Content Marketing", "Data Analysis"],
+    jobTitles: ["Content Writer", "Marketing Manager", "Customer Support Agent"],
   },
   {
     id: "6",
@@ -202,6 +207,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["Team Collaboration", "Integrations"],
     commonUseCases: ["Social Media", "Marketing"],
+    jobTitles: ["Social Media Manager", "Marketing Manager"],
   },
   {
     id: "7",
@@ -236,6 +242,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["Browser Extension", "API Access", "Multi-language", "SEO Tools"],
     commonUseCases: ["Content Marketing", "SEO", "Email Marketing"],
+    jobTitles: ["Content Writer", "Marketing Manager"],
   },
   {
     id: "8",
@@ -270,6 +277,7 @@ export const MOCK_SERVICES = [
     hasFreeTier: true,
     popularFeatures: ["Integrations", "Mobile App"],
     commonUseCases: ["Design", "Marketing", "Social Media"],
+    jobTitles: ["Graphic Designer", "Marketing Manager"],
   },
 ];
 
@@ -281,6 +289,7 @@ export interface Job {
   aisCount: number;
   category: string;
   description: string;
+  tasks: string[]; // Professional tasks within this job
 }
 
 export const MOCK_JOBS: Job[] = [
@@ -291,7 +300,21 @@ export const MOCK_JOBS: Job[] = [
     tasksCount: 12,
     aisCount: 8,
     category: "Creative",
-    description: "Creates written content for websites, blogs, and marketing materials"
+    description: "Creates written content for websites, blogs, and marketing materials",
+    tasks: [
+      "Write blog posts and articles",
+      "Create SEO-optimized content",
+      "Develop marketing copy",
+      "Edit and proofread content",
+      "Research industry topics",
+      "Write product descriptions",
+      "Create social media captions",
+      "Develop email newsletters",
+      "Write case studies",
+      "Create white papers",
+      "Develop landing page copy",
+      "Manage content calendar"
+    ]
   },
   {
     id: "2",
@@ -300,168 +323,100 @@ export const MOCK_JOBS: Job[] = [
     tasksCount: 15,
     aisCount: 10,
     category: "Creative",
-    description: "Designs visual content for digital and print media"
+    description: "Designs visual content for digital and print media",
+    tasks: [
+      "Create social media graphics",
+      "Design marketing materials",
+      "Develop brand identity",
+      "Create infographics",
+      "Design website layouts",
+      "Edit and retouch images",
+      "Create presentation templates",
+      "Design print materials (brochures, flyers)",
+      "Develop icon sets",
+      "Create illustrations",
+      "Design email templates",
+      "Manage brand guidelines",
+      "Create packaging designs",
+      "Design advertisements",
+      "Develop motion graphics"
+    ]
   },
   {
     id: "3",
-    title: "Software Developer",
-    aiImpact: 68,
-    tasksCount: 20,
-    aisCount: 12,
-    category: "Technology",
-    description: "Develops and maintains software applications"
+    title: "Social Media Manager",
+    aiImpact: 88,
+    tasksCount: 16,
+    aisCount: 13,
+    category: "Marketing",
+    description: "Manages social media presence and engagement",
+    tasks: [
+      "Create social media content",
+      "Schedule and publish posts",
+      "Respond to comments and messages",
+      "Analyze engagement metrics",
+      "Develop content calendar",
+      "Run social media campaigns",
+      "Create social media graphics",
+      "Write engaging captions",
+      "Monitor brand mentions",
+      "Manage influencer partnerships",
+      "Create video content",
+      "Develop hashtag strategy",
+      "Track competitor activity",
+      "Report on social performance",
+      "Manage community engagement",
+      "Create social media ads"
+    ]
   },
   {
     id: "4",
-    title: "Data Analyst",
-    aiImpact: 78,
-    tasksCount: 14,
-    aisCount: 9,
-    category: "Analytics",
-    description: "Analyzes data to provide business insights"
-  },
-  {
-    id: "5",
     title: "Marketing Manager",
     aiImpact: 65,
     tasksCount: 18,
     aisCount: 11,
     category: "Marketing",
-    description: "Plans and executes marketing strategies"
+    description: "Plans and executes marketing strategies",
+    tasks: [
+      "Develop marketing strategy",
+      "Plan campaign budgets",
+      "Analyze market trends",
+      "Coordinate team activities",
+      "Manage marketing campaigns",
+      "Track campaign performance",
+      "Create marketing reports",
+      "Conduct market research",
+      "Manage brand positioning",
+      "Oversee content creation",
+      "Develop product launches",
+      "Manage vendor relationships",
+      "Coordinate events and webinars",
+      "Optimize marketing funnels",
+      "Manage email marketing",
+      "Analyze competitor strategies",
+      "Set KPIs and goals",
+      "Present results to stakeholders"
+    ]
   },
   {
-    id: "6",
+    id: "5",
     title: "Customer Support Agent",
     aiImpact: 82,
     tasksCount: 10,
     aisCount: 7,
     category: "Service",
-    description: "Provides customer service and support"
-  },
-  {
-    id: "7",
-    title: "Social Media Manager",
-    aiImpact: 88,
-    tasksCount: 13,
-    aisCount: 9,
-    category: "Marketing",
-    description: "Manages social media presence and engagement"
-  },
-  {
-    id: "8",
-    title: "SEO Specialist",
-    aiImpact: 76,
-    tasksCount: 11,
-    aisCount: 8,
-    category: "Marketing",
-    description: "Optimizes websites for search engine visibility"
-  },
-  {
-    id: "9",
-    title: "Video Editor",
-    aiImpact: 70,
-    tasksCount: 16,
-    aisCount: 6,
-    category: "Creative",
-    description: "Edits and produces video content"
-  },
-  {
-    id: "10",
-    title: "Product Manager",
-    aiImpact: 55,
-    tasksCount: 22,
-    aisCount: 10,
-    category: "Management",
-    description: "Manages product development and strategy"
-  },
-  {
-    id: "11",
-    title: "Email Marketing Specialist",
-    aiImpact: 80,
-    tasksCount: 9,
-    aisCount: 7,
-    category: "Marketing",
-    description: "Creates and manages email marketing campaigns"
-  },
-  {
-    id: "12",
-    title: "Translator",
-    aiImpact: 90,
-    tasksCount: 8,
-    aisCount: 6,
-    category: "Language",
-    description: "Translates content between languages"
-  },
-  {
-    id: "13",
-    title: "UX/UI Designer",
-    aiImpact: 60,
-    tasksCount: 17,
-    aisCount: 9,
-    category: "Design",
-    description: "Designs user interfaces and experiences"
-  },
-  {
-    id: "14",
-    title: "Copywriter",
-    aiImpact: 87,
-    tasksCount: 10,
-    aisCount: 8,
-    category: "Creative",
-    description: "Writes persuasive marketing and advertising copy"
-  },
-  {
-    id: "15",
-    title: "Financial Analyst",
-    aiImpact: 73,
-    tasksCount: 15,
-    aisCount: 8,
-    category: "Finance",
-    description: "Analyzes financial data and trends"
-  },
-  {
-    id: "16",
-    title: "HR Recruiter",
-    aiImpact: 58,
-    tasksCount: 12,
-    aisCount: 6,
-    category: "Human Resources",
-    description: "Recruits and screens job candidates"
-  },
-  {
-    id: "17",
-    title: "Business Analyst",
-    aiImpact: 64,
-    tasksCount: 16,
-    aisCount: 9,
-    category: "Analytics",
-    description: "Analyzes business processes and requirements"
-  },
-  {
-    id: "18",
-    title: "Content Strategist",
-    aiImpact: 75,
-    tasksCount: 14,
-    aisCount: 10,
-    category: "Marketing",
-    description: "Plans content strategies and editorial calendars"
-  },
-  {
-    id: "19",
-    title: "Legal Assistant",
-    aiImpact: 62,
-    tasksCount: 13,
-    aisCount: 5,
-    category: "Legal",
-    description: "Assists lawyers with legal research and documentation"
-  },
-  {
-    id: "20",
-    title: "Research Analyst",
-    aiImpact: 71,
-    tasksCount: 12,
-    aisCount: 8,
-    category: "Research",
-    description: "Conducts research and prepares reports"
+    description: "Provides customer service and technical support",
+    tasks: [
+      "Respond to customer inquiries",
+      "Resolve customer complaints",
+      "Provide technical support",
+      "Update customer records",
+      "Create support documentation",
+      "Process refunds and returns",
+      "Escalate complex issues",
+      "Track support metrics",
+      "Train new support staff",
+      "Improve customer satisfaction"
+    ]
   }
 ];

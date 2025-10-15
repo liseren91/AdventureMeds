@@ -344,33 +344,26 @@ export const MOCK_JOBS: Job[] = [
   },
   {
     id: "3",
-    title: "Social Media Manager",
-    aiImpact: 88,
-    tasksCount: 16,
-    aisCount: 13,
-    category: "Marketing",
-    description: "Manages social media presence and engagement",
-    tasks: [
-      "Create social media content",
-      "Schedule and publish posts",
-      "Respond to comments and messages",
-      "Analyze engagement metrics",
-      "Develop content calendar",
-      "Run social media campaigns",
-      "Create social media graphics",
-      "Write engaging captions",
-      "Monitor brand mentions",
-      "Manage influencer partnerships",
-      "Create video content",
-      "Develop hashtag strategy",
-      "Track competitor activity",
-      "Report on social performance",
-      "Manage community engagement",
-      "Create social media ads"
-    ]
+    title: "Software Developer",
+    aiImpact: 68,
+    tasksCount: 20,
+    aisCount: 12,
+    category: "Technology",
+    description: "Develops and maintains software applications",
+    tasks: []
   },
   {
     id: "4",
+    title: "Data Analyst",
+    aiImpact: 78,
+    tasksCount: 14,
+    aisCount: 9,
+    category: "Analytics",
+    description: "Analyzes data to provide business insights",
+    tasks: []
+  },
+  {
+    id: "5",
     title: "Marketing Manager",
     aiImpact: 65,
     tasksCount: 18,
@@ -399,7 +392,7 @@ export const MOCK_JOBS: Job[] = [
     ]
   },
   {
-    id: "5",
+    id: "6",
     title: "Customer Support Agent",
     aiImpact: 82,
     tasksCount: 10,
@@ -418,5 +411,162 @@ export const MOCK_JOBS: Job[] = [
       "Train new support staff",
       "Improve customer satisfaction"
     ]
+  },
+  {
+    id: "7",
+    title: "Social Media Manager",
+    aiImpact: 88,
+    tasksCount: 16,
+    aisCount: 13,
+    category: "Marketing",
+    description: "Manages social media presence and engagement",
+    tasks: [
+      "Create social media content",
+      "Schedule and publish posts",
+      "Respond to comments and messages",
+      "Analyze engagement metrics",
+      "Develop content calendar",
+      "Run social media campaigns",
+      "Create social media graphics",
+      "Write engaging captions",
+      "Monitor brand mentions",
+      "Manage influencer partnerships",
+      "Create video content",
+      "Develop hashtag strategy",
+      "Track competitor activity",
+      "Report on social performance",
+      "Manage community engagement",
+      "Create social media ads"
+    ]
+  },
+  {
+    id: "8",
+    title: "Copywriter",
+    aiImpact: 87,
+    tasksCount: 11,
+    aisCount: 9,
+    category: "Creative",
+    description: "Writes persuasive copy for ads and marketing",
+    tasks: []
+  },
+  {
+    id: "9",
+    title: "UX/UI Designer",
+    aiImpact: 60,
+    tasksCount: 17,
+    aisCount: 8,
+    category: "Creative",
+    description: "Designs user experiences and interfaces",
+    tasks: []
+  },
+  {
+    id: "10",
+    title: "Product Manager",
+    aiImpact: 55,
+    tasksCount: 22,
+    aisCount: 10,
+    category: "Management",
+    description: "Manages product development and strategy",
+    tasks: []
+  },
+  {
+    id: "11",
+    title: "Video Editor",
+    aiImpact: 75,
+    tasksCount: 13,
+    aisCount: 11,
+    category: "Creative",
+    description: "Edits and produces video content",
+    tasks: []
+  },
+  {
+    id: "12",
+    title: "Translator",
+    aiImpact: 90,
+    tasksCount: 8,
+    aisCount: 6,
+    category: "Language",
+    description: "Translates content between languages",
+    tasks: []
+  },
+  {
+    id: "13",
+    title: "Sales Representative",
+    aiImpact: 58,
+    tasksCount: 19,
+    aisCount: 9,
+    category: "Sales",
+    description: "Sells products and services to customers",
+    tasks: []
+  },
+  {
+    id: "14",
+    title: "Email Marketer",
+    aiImpact: 83,
+    tasksCount: 12,
+    aisCount: 10,
+    category: "Marketing",
+    description: "Creates and manages email marketing campaigns",
+    tasks: []
+  },
+  {
+    id: "15",
+    title: "SEO Specialist",
+    aiImpact: 70,
+    tasksCount: 15,
+    aisCount: 12,
+    category: "Marketing",
+    description: "Optimizes content for search engines",
+    tasks: []
+  },
+  {
+    id: "16",
+    title: "Business Analyst",
+    aiImpact: 66,
+    tasksCount: 18,
+    aisCount: 11,
+    category: "Analytics",
+    description: "Analyzes business processes and requirements",
+    tasks: []
+  },
+  {
+    id: "17",
+    title: "HR Recruiter",
+    aiImpact: 62,
+    tasksCount: 16,
+    aisCount: 8,
+    category: "Human Resources",
+    description: "Recruits and screens job candidates",
+    tasks: []
+  },
+  {
+    id: "18",
+    title: "Financial Analyst",
+    aiImpact: 73,
+    tasksCount: 17,
+    aisCount: 10,
+    category: "Finance",
+    description: "Analyzes financial data and trends",
+    tasks: []
+  },
+  {
+    id: "19",
+    title: "Project Manager",
+    aiImpact: 52,
+    tasksCount: 20,
+    aisCount: 9,
+    category: "Management",
+    description: "Manages projects and coordinates teams",
+    tasks: []
+  },
+  {
+    id: "20",
+    title: "Research Analyst",
+    aiImpact: 76,
+    tasksCount: 14,
+    aisCount: 11,
+    category: "Analytics",
+    description: "Conducts research and data analysis",
+    tasks: []
   }
 ];

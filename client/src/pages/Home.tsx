@@ -362,21 +362,23 @@ export default function Home() {
                   </Button>
                 </div>
 
-                <div className="space-y-3">
-                  <h3 className="font-semibold">Professional Tasks:</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {selectedJob.tasks.map((task, index) => (
-                      <div 
-                        key={index} 
-                        className="flex items-start gap-2 text-sm"
-                        data-testid={`text-job-task-${index}`}
-                      >
-                        <span className="text-primary mt-0.5">•</span>
-                        <span className="text-muted-foreground">{task}</span>
-                      </div>
-                    ))}
+                {selectedJob.tasks && selectedJob.tasks.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="font-semibold">Professional Tasks:</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {selectedJob.tasks.map((task, index) => (
+                        <div 
+                          key={index} 
+                          className="flex items-start gap-2 text-sm"
+                          data-testid={`text-job-task-${index}`}
+                        >
+                          <span className="text-primary mt-0.5">•</span>
+                          <span className="text-muted-foreground">{task}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="pt-2 border-t border-border">
                   <p className="text-sm text-muted-foreground">

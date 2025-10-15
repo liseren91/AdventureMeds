@@ -293,11 +293,13 @@ export default function Home() {
             />
           </div>
 
-          <div className="flex justify-end">
-            <p className="text-sm text-muted-foreground" data-testid="text-service-count">
-              2,147 AI services
-            </p>
-          </div>
+          {!selectedJobTitle && (
+            <div className="flex justify-end">
+              <p className="text-sm text-muted-foreground" data-testid="text-service-count">
+                2,147 AI services
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-8">

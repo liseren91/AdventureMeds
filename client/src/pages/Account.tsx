@@ -12,7 +12,9 @@ import {
   Calendar,
   DollarSign,
   ExternalLink,
-  Download
+  Download,
+  Clock,
+  AlertCircle
 } from "lucide-react";
 import { Link } from "wouter";
 import { MOCK_SERVICES } from "@/lib/mockData";
@@ -52,6 +54,48 @@ export default function Account() {
   const getPurchasedService = (serviceId: string) => {
     return MOCK_SERVICES.find(s => s.id === serviceId);
   };
+
+  const getNextPaymentDate = (purchase: Purchase) => {
+    const purchaseDate = new Date(purchase.purchaseDate);
+    const now = new Date();
+    const nextDate = new Date(purchaseDate);
+    
+    if (purchase.billingCycle === "monthly") {
+      while (nextDate <= now) {
+        nextDate.setMonth(nextDate.getMonth() + 1);
+      }
+    } else {
+      while (nextDate <= now) {
+        nextDate.setFullYear(nextDate.getFullYear() + 1);
+      }
+    }
+    
+    return nextDate;
+  };
+
+  const getDaysUntilPayment = (nextPaymentDate: Date) => {
+    const now = new Date();
+    const diffTime = nextPaymentDate.getTime() - now.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const getPaymentStatus = (daysUntil: number) => {
+    if (daysUntil <= 3) return "urgent";
+    if (daysUntil <= 7) return "warning";
+    return "active";
+  };
+
+  const upcomingPayments = activePurchases
+    .map(purchase => ({
+      ...purchase,
+      nextPaymentDate: getNextPaymentDate(purchase),
+    }))
+    .sort((a, b) => a.nextPaymentDate.getTime() - b.nextPaymentDate.getTime());
+
+  const nextPaymentAmount = upcomingPayments.length > 0 ? upcomingPayments[0].price : 0;
+  const monthlyTotal = activePurchases
+    .filter(p => p.billingCycle === "monthly")
+    .reduce((sum, p) => sum + p.price, 0);
 
   const handleCancelSubscription = (purchaseId: string) => {
     const updated = purchases.map(p => 
@@ -110,7 +154,7 @@ export default function Account() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Active Services</CardTitle>
@@ -128,15 +172,33 @@ export default function Account() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Spending</CardTitle>
+                  <CardTitle className="text-sm font-medium">Monthly Cost</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold" data-testid="text-total-spending">
-                    ${totalSpending.toFixed(2)}
+                  <div className="text-2xl font-bold" data-testid="text-monthly-cost">
+                    ${monthlyTotal.toFixed(2)}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Lifetime value
+                    Per month
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Next Payment</CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold" data-testid="text-next-payment">
+                    ${nextPaymentAmount.toFixed(2)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {upcomingPayments.length > 0 
+                      ? upcomingPayments[0].nextPaymentDate.toLocaleDateString()
+                      : "No payments scheduled"
+                    }
                   </p>
                 </CardContent>
               </Card>
@@ -155,23 +217,29 @@ export default function Account() {
               </Card>
             </div>
 
-            {activePurchases.length > 0 ? (
+            {upcomingPayments.length > 0 ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Subscriptions</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Upcoming Payments
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {activePurchases.slice(0, 3).map((purchase) => {
-                    const service = getPurchasedService(purchase.serviceId);
+                <CardContent className="space-y-3">
+                  {upcomingPayments.slice(0, 5).map((payment) => {
+                    const service = getPurchasedService(payment.serviceId);
                     if (!service) return null;
+                    
+                    const daysUntil = getDaysUntilPayment(payment.nextPaymentDate);
+                    const status = getPaymentStatus(daysUntil);
                     
                     return (
                       <div 
-                        key={purchase.id} 
+                        key={payment.id} 
                         className="flex items-center justify-between p-4 border border-border rounded-md hover-elevate"
-                        data-testid={`card-recent-subscription-${purchase.id}`}
+                        data-testid={`card-upcoming-payment-${payment.id}`}
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 flex-1">
                           {service.logoUrl ? (
                             <img 
                               src={service.logoUrl} 
@@ -185,19 +253,40 @@ export default function Account() {
                               </span>
                             </div>
                           )}
-                          <div>
+                          <div className="flex-1">
                             <h4 className="font-semibold">{service.name}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {purchase.planName} • ${purchase.price}/{purchase.billingCycle === "monthly" ? "mo" : "yr"}
+                              {payment.planName} • ${payment.price}
                             </p>
                           </div>
                         </div>
-                        <Link href={`/service/${service.id}`}>
-                          <Button variant="outline" size="sm" data-testid={`button-view-service-${purchase.id}`}>
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View
-                          </Button>
-                        </Link>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="text-sm font-medium">
+                              {payment.nextPaymentDate.toLocaleDateString()}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `In ${daysUntil} days`}
+                            </p>
+                          </div>
+                          {status === "urgent" && (
+                            <Badge variant="destructive" className="gap-1">
+                              <AlertCircle className="h-3 w-3" />
+                              Urgent
+                            </Badge>
+                          )}
+                          {status === "warning" && (
+                            <Badge variant="outline" className="gap-1 bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
+                              <Clock className="h-3 w-3" />
+                              Soon
+                            </Badge>
+                          )}
+                          {status === "active" && (
+                            <Badge variant="outline" className="gap-1 bg-green-500/10 text-green-500 border-green-500/20">
+                              Active
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     );
                   })}

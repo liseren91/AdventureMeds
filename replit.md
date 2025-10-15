@@ -95,7 +95,12 @@ Preferred communication style: Simple, everyday language.
 
 **Account Management:**
 - `Account.tsx`: Personal cabinet with 4 tabs (Overview, My Services, History, Settings)
-- Real-time dashboard stats (active services, total spending, payment method)
+- **Enhanced Dashboard Overview:**
+  - 4 metric cards: Active Services, Monthly Cost, Next Payment (with date), Payment Method
+  - Upcoming Payments section with next 5 payments sorted by date
+  - Smart payment status badges: Urgent (≤3 days, red), Soon (≤7 days, yellow), Active (>7 days, green)
+  - Auto-calculated next payment dates based on billing cycle (monthly/yearly)
+  - Days-until-payment display (Today/Tomorrow/In X days)
 - Subscription management with cancel functionality
 - Purchase history with status tracking (active/cancelled)
 - User profile with avatar and editable information (UI only)
@@ -133,10 +138,15 @@ Preferred communication style: Simple, everyday language.
 - **Personal Account/Cabinet (Frontend Only)**:
   - User profile with avatar and basic information
   - Service purchase/subscription flow with 3-step process (select plan → confirm → success)
+  - **Enhanced Dashboard Overview:**
+    - 4 metric cards: Active Services count, Monthly Cost sum, Next Payment (amount + date), Payment Method
+    - Upcoming Payments section showing next 5 payments sorted by date
+    - Smart status badges: Urgent (≤3 days, red), Soon (≤7 days, yellow), Active (>7 days, green)
+    - Auto-calculated next payment dates based on billing cycle
+    - Relative time display: "Today", "Tomorrow", or "In X days"
   - Active subscriptions management with cancel functionality
   - Purchase history tracking with status badges
   - Payment method display (UI only, no real payment processing)
-  - Dashboard with active services count, total spending, and quick stats
   - Tab-based navigation: Overview, My Services, Purchase History, Settings
   - localStorage persistence for all purchase data (frontend only, no backend)
 - Breadcrumb navigation on all pages for easy wayfinding

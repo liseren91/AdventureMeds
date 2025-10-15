@@ -17,14 +17,61 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priceFilters, setPriceFilters] = useState({
     free: false,
-    freemium: true,
+    freemium: false,
     paid: false,
   });
   const [rating, setRating] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("popularity");
+  const [features, setFeatures] = useState<string[]>([]);
+  const [useCases, setUseCases] = useState<string[]>([]);
+  const [hasFreeTierOnly, setHasFreeTierOnly] = useState(false);
+  const [priceRange, setPriceRange] = useState("all");
+  const [newness, setNewness] = useState("all");
+  const [teamSize, setTeamSize] = useState<string[]>([]);
+  const [quickFilter, setQuickFilter] = useState("");
 
   const handlePriceFilterChange = (filter: 'free' | 'freemium' | 'paid') => {
     setPriceFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
+  };
+
+  const handleQuickFilterChange = (filter: string) => {
+    // Reset other filters when applying quick filter
+    if (filter === "") {
+      setQuickFilter("");
+      return;
+    }
+
+    setQuickFilter(filter);
+    
+    // Reset all filters first
+    setPriceFilters({ free: false, freemium: false, paid: false });
+    setRating("");
+    setFeatures([]);
+    setUseCases([]);
+    setHasFreeTierOnly(false);
+    setPriceRange("all");
+    setNewness("all");
+    setTeamSize([]);
+
+    // Apply quick filter presets
+    switch (filter) {
+      case "popular":
+        setSortBy("popularity");
+        setRating("4.0+");
+        break;
+      case "new":
+        setNewness("3months");
+        setSortBy("newest");
+        break;
+      case "free":
+        setHasFreeTierOnly(true);
+        setSortBy("rating-desc");
+        break;
+      case "teams":
+        setTeamSize(["small", "medium", "enterprise"]);
+        setFeatures(["Team Collaboration"]);
+        break;
+    }
   };
 
   const handleReset = () => {
@@ -33,6 +80,13 @@ export default function Home() {
     setRating("");
     setSearchQuery("");
     setSortBy("popularity");
+    setFeatures([]);
+    setUseCases([]);
+    setHasFreeTierOnly(false);
+    setPriceRange("all");
+    setNewness("all");
+    setTeamSize([]);
+    setQuickFilter("");
   };
 
   const handleSearch = () => {
@@ -40,11 +94,7 @@ export default function Home() {
   };
 
   const handleFavoriteToggle = (serviceId: string, isFavorite: boolean) => {
-    if (isFavorite) {
-      toggleFavorite(serviceId);
-    } else {
-      toggleFavorite(serviceId);
-    }
+    toggleFavorite(serviceId);
   };
 
   const handleCompareToggle = (serviceId: string, isComparing: boolean) => {
@@ -74,7 +124,7 @@ export default function Home() {
   };
 
   const handleCompare = () => {
-    // Navigate to compare page - comparing state is already managed globally
+    setLocation("/compare");
   };
 
   const handleServiceClick = (serviceId: string) => {
@@ -84,26 +134,86 @@ export default function Home() {
 
   const filteredAndSortedServices = useMemo(() => {
     let filtered = MOCK_SERVICES.filter(service => {
+      // Search filter
       const matchesSearch = searchQuery === "" || 
         service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
 
+      // Category filter
       const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
 
+      // Price type filter
       const matchesPrice = 
         (!priceFilters.free && !priceFilters.freemium && !priceFilters.paid) ||
         (priceFilters.free && service.price === "Free") ||
         (priceFilters.freemium && service.price === "Freemium") ||
         (priceFilters.paid && service.price.includes("$"));
 
+      // Rating filter
       const matchesRating = 
         rating === "" ||
         (rating === "5.0" && parseFloat(service.rating) === 5.0) ||
         (rating === "4.0+" && parseFloat(service.rating) >= 4.0) ||
         (rating === "3.0+" && parseFloat(service.rating) >= 3.0);
 
-      return matchesSearch && matchesCategory && matchesPrice && matchesRating;
+      // Features filter
+      const matchesFeatures = features.length === 0 || 
+        features.every(feature => service.popularFeatures?.includes(feature));
+
+      // Use cases filter
+      const matchesUseCases = useCases.length === 0 || 
+        useCases.some(useCase => service.commonUseCases?.includes(useCase));
+
+      // Free tier filter
+      const matchesFreeTier = !hasFreeTierOnly || service.hasFreeTier;
+
+      // Price range filter
+      const matchesPriceRange = (() => {
+        if (priceRange === "all") return true;
+        
+        const getPrice = (price: string) => {
+          if (price === 'Free') return 0;
+          if (price === 'Freemium') return 0; // Freemium has free tier
+          const match = price.match(/\$(\d+)/);
+          return match ? parseInt(match[1]) : 999;
+        };
+        
+        const price = getPrice(service.price);
+        
+        switch (priceRange) {
+          case "0-10": return price <= 10;
+          case "10-50": return price > 10 && price <= 50;
+          case "50-100": return price > 50 && price <= 100;
+          case "100+": return price > 100;
+          default: return true;
+        }
+      })();
+
+      // Newness filter
+      const matchesNewness = (() => {
+        if (newness === "all") return true;
+        
+        const now = new Date();
+        const serviceDate = service.createdAt;
+        const monthsDiff = (now.getFullYear() - serviceDate.getFullYear()) * 12 + 
+          (now.getMonth() - serviceDate.getMonth());
+        
+        switch (newness) {
+          case "1month": return monthsDiff <= 1;
+          case "3months": return monthsDiff <= 3;
+          case "6months": return monthsDiff <= 6;
+          default: return true;
+        }
+      })();
+
+      // Team size filter
+      const matchesTeamSize = teamSize.length === 0 || 
+        teamSize.some(size => service.teamSize?.includes(size));
+
+      return matchesSearch && matchesCategory && matchesPrice && matchesRating && 
+        matchesFeatures && matchesUseCases && matchesFreeTier && matchesPriceRange && 
+        matchesNewness && matchesTeamSize;
     });
 
     return filtered.sort((a, b) => {
@@ -132,7 +242,8 @@ export default function Home() {
           return 0;
       }
     });
-  }, [searchQuery, selectedCategory, priceFilters, rating, sortBy]);
+  }, [searchQuery, selectedCategory, priceFilters, rating, sortBy, features, useCases, 
+    hasFreeTierOnly, priceRange, newness, teamSize]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -171,6 +282,20 @@ export default function Home() {
               onPriceFilterChange={handlePriceFilterChange}
               rating={rating}
               onRatingChange={setRating}
+              features={features}
+              onFeaturesChange={setFeatures}
+              useCases={useCases}
+              onUseCasesChange={setUseCases}
+              hasFreeTierOnly={hasFreeTierOnly}
+              onHasFreeTierChange={setHasFreeTierOnly}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              newness={newness}
+              onNewnessChange={setNewness}
+              teamSize={teamSize}
+              onTeamSizeChange={setTeamSize}
+              quickFilter={quickFilter}
+              onQuickFilterChange={handleQuickFilterChange}
               onReset={handleReset}
             />
           </aside>

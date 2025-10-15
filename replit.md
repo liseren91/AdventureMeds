@@ -71,7 +71,8 @@ Preferred communication style: Simple, everyday language.
 
 **Data Models:**
 - **Users:** Basic authentication with username/password
-- **AI Services:** Comprehensive service catalog with categories, pricing, ratings, features
+- **AI Services:** Comprehensive service catalog with categories, pricing, ratings, features, **jobTitles** (array of professions this service supports)
+- **Jobs (Professions):** 5 professions with title, aiImpact (0-100%), tasksCount, aisCount, category, description, and **tasks** (array of professional tasks)
 - **Favorites:** User-service relationships for saved items
 - **View History:** Tracking of viewed services per user
 - **Comparisons:** Saved service comparisons
@@ -106,7 +107,12 @@ Preferred communication style: Simple, everyday language.
 - Notification system with unread count badges
 - Cost calculator for team-based pricing estimation
 - Industry-specific use case explorer
-- **Job Impact Index**: Analyze how AI impacts different professions with searchable table showing AI impact scores (0-100%), task counts, and available AI tools
+- **Job Impact Index with Professional Filter**: 
+  - Analyze how AI impacts 5 professions with searchable, sortable table
+  - Click any job to filter services by profession
+  - View profession-specific tasks (12-18 tasks per job)
+  - Services filtered by jobTitles field showing profession-relevant AI tools
+  - Clear filter to return to full catalog
 - Breadcrumb navigation on all pages for easy wayfinding
 
 **Data Export:**
@@ -178,3 +184,4 @@ Preferred communication style: Simple, everyday language.
 - "View All [Category]" button in similar services section
 - Logo-based service cards with fallback to initials
 - Price formatting with "From" prefix for paid services
+- **Job-based filtering**: Click any job in Job Impact Index to navigate to catalog with ?jobTitle parameter, showing only profession-relevant services and tasks

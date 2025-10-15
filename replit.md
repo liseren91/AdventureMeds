@@ -87,7 +87,14 @@ Preferred communication style: Simple, everyday language.
 
 **Core Functionality:**
 - Service catalog browsing with grid layout (3 columns × 2 rows per page)
-- Advanced filtering: category, price type (Free/Freemium/Paid), rating thresholds
+- **Advanced Filtering System with 7 Categories:**
+  - **Features Filter**: Multi-select with AND logic (service must have all selected features)
+  - **Use Cases Filter**: Multi-select with OR logic (service must match at least one use case)
+  - **Free Tier Filter**: Toggle to show only services with free versions
+  - **Price Range Filter**: Dropdown to filter by pricing tiers ($0-10, $10-50, $50-100, $100+)
+  - **Newness Filter**: Time-based filtering (Last month, Last 3 months, Last 6 months)
+  - **Team Size Filter**: Multi-select for individual, small (2-10), medium (10-100), enterprise (100+)
+  - **Quick Filters**: Badge-based preset combinations (Popular, New, Best Free, For Teams)
 - Sorting options: rating, popularity, date, price
 - AI-powered search (placeholder for future implementation)
 - Detailed service pages with full descriptions, features, pricing tiers, use cases

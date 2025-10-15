@@ -84,6 +84,22 @@ Preferred communication style: Simple, everyday language.
 - Designed for easy swapping to database-backed storage
 - Currently using mock data (MOCK_SERVICES) on frontend pending API implementation
 
+### Key Components
+
+**Purchase Flow:**
+- `PurchaseDialog.tsx`: 3-step purchase modal (select plan → confirm → success)
+- Integrated with ServiceDetail page via "Subscribe Now" button
+- Supports monthly/yearly billing cycle toggle with 20% yearly discount indicator
+- Plan selection via radio groups with visual feedback
+- localStorage-based purchase persistence (no backend required)
+
+**Account Management:**
+- `Account.tsx`: Personal cabinet with 4 tabs (Overview, My Services, History, Settings)
+- Real-time dashboard stats (active services, total spending, payment method)
+- Subscription management with cancel functionality
+- Purchase history with status tracking (active/cancelled)
+- User profile with avatar and editable information (UI only)
+
 ### Application Features
 
 **Core Functionality:**
@@ -114,6 +130,15 @@ Preferred communication style: Simple, everyday language.
   - Services filtered by jobTitles field showing profession-relevant AI tools
   - Clear filter to return to full catalog
   - 5 professions with detailed tasks serve as template for future data entry
+- **Personal Account/Cabinet (Frontend Only)**:
+  - User profile with avatar and basic information
+  - Service purchase/subscription flow with 3-step process (select plan → confirm → success)
+  - Active subscriptions management with cancel functionality
+  - Purchase history tracking with status badges
+  - Payment method display (UI only, no real payment processing)
+  - Dashboard with active services count, total spending, and quick stats
+  - Tab-based navigation: Overview, My Services, Purchase History, Settings
+  - localStorage persistence for all purchase data (frontend only, no backend)
 - Breadcrumb navigation on all pages for easy wayfinding
 
 **Data Export:**

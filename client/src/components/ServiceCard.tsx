@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, Heart, GitCompare } from "lucide-react";
+import { Star, Heart, GitCompare, ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useState } from "react";
+import PurchaseDialog from "./PurchaseDialog";
+import { MOCK_SERVICES } from "@/lib/mockData";
 
 interface ServiceCardProps {
   id: string;
@@ -40,6 +42,7 @@ export default function ServiceCard({
 }: ServiceCardProps) {
   const [favorite, setFavorite] = useState(isFavorite);
   const [comparing, setComparing] = useState(isComparing);
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,6 +59,14 @@ export default function ServiceCard({
     setComparing(newComparing);
     onCompareToggle?.(id, newComparing);
   };
+
+  const handleBuyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPurchaseDialogOpen(true);
+  };
+
+  const service = MOCK_SERVICES.find(s => s.id === id);
 
   return (
     <Card 
@@ -112,23 +123,47 @@ export default function ServiceCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1 text-sm">
             <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
             <span className="font-medium" data-testid={`text-rating-${name.toLowerCase().replace(/\s+/g, '-')}`}>{rating}</span>
           </div>
-          <Button
-            size="sm"
-            variant={comparing ? "default" : "outline"}
-            onClick={handleCompareClick}
-            className="gap-2"
-            data-testid={`button-compare-${id}`}
-          >
-            <GitCompare className="h-4 w-4" />
-            {comparing ? "В сравнении" : "К сравнению"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={comparing ? "default" : "outline"}
+              onClick={handleCompareClick}
+              data-testid={`button-compare-${id}`}
+            >
+              <GitCompare className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="default"
+              onClick={handleBuyClick}
+              className="gap-2"
+              data-testid={`button-buy-${id}`}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Купить
+            </Button>
+          </div>
         </div>
       </CardContent>
+
+      {service && (
+        <PurchaseDialog
+          service={{
+            id: service.id,
+            name: service.name,
+            logoUrl: service.logoUrl,
+            color: service.color,
+            pricingTiers: service.pricingTiers,
+          }}
+          open={purchaseDialogOpen}
+          onOpenChange={setPurchaseDialogOpen}
+        />
+      )}
     </Card>
   );
 }

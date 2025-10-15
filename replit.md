@@ -109,6 +109,7 @@ Preferred communication style: Simple, everyday language.
 
 **Core Functionality:**
 - Service catalog browsing with grid layout (3 columns × 2 rows per page)
+- "Купить" (Buy) button on each service card for quick purchase access
 - **Advanced Filtering System with 7 Categories:**
   - **Features Filter**: Multi-select with AND logic (service must have all selected features)
   - **Use Cases Filter**: Multi-select with OR logic (service must match at least one use case)

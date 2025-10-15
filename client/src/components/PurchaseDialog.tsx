@@ -30,10 +30,15 @@ interface PurchaseDialogProps {
     color: string;
     pricingTiers: PricingTier[];
   };
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
 }
 
-export default function PurchaseDialog({ service }: PurchaseDialogProps) {
-  const [open, setOpen] = useState(false);
+export default function PurchaseDialog({ service, open: externalOpen, onOpenChange: externalOnOpenChange, trigger }: PurchaseDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
   const [selectedPlan, setSelectedPlan] = useState<number>(1); // Default to middle tier
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [step, setStep] = useState<"select" | "confirm" | "success">("select");
@@ -85,16 +90,22 @@ export default function PurchaseDialog({ service }: PurchaseDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          size="lg" 
-          className="gap-2"
-          data-testid="button-purchase-service"
-        >
-          <ShoppingBag className="h-5 w-5" />
-          Subscribe Now
-        </Button>
-      </DialogTrigger>
+      {trigger ? (
+        <DialogTrigger asChild>
+          {trigger}
+        </DialogTrigger>
+      ) : externalOpen === undefined ? (
+        <DialogTrigger asChild>
+          <Button 
+            size="lg" 
+            className="gap-2"
+            data-testid="button-purchase-service"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            Subscribe Now
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         {step === "select" && (
           <>

@@ -1,4 +1,4 @@
-import { useRoute, useLocation } from "wouter";
+import { useRoute, useLocation, Link } from "wouter";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,14 @@ import RecommendedServices from "@/components/RecommendedServices";
 import { useApp } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/utils";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function ServiceDetail() {
   const [, params] = useRoute("/service/:id");
@@ -63,7 +71,37 @@ export default function ServiceDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+        <Breadcrumb data-testid="breadcrumb-service-detail">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link 
+                  href="/"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCategory(service.category);
+                    setLocation('/');
+                  }}
+                  data-testid="link-breadcrumb-category"
+                >
+                  {service.category.charAt(0).toUpperCase() + service.category.slice(1)}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage data-testid="text-breadcrumb-service">{service.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <Card className="border-card-border">
           <CardHeader className="space-y-6 pb-6">
             <div className="flex items-start gap-6">

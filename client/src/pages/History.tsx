@@ -1,10 +1,18 @@
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import ServiceCard from "@/components/ServiceCard";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function History() {
   const [, setLocation] = useLocation();
@@ -42,7 +50,21 @@ export default function History() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <Breadcrumb data-testid="breadcrumb-history">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage data-testid="text-breadcrumb-history">History</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold tracking-tight" data-testid="text-history-title">

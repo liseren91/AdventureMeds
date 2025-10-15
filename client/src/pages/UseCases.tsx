@@ -1,8 +1,17 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, ShoppingCart, Briefcase, Users } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 interface UseCase {
   industry: string;
@@ -76,7 +85,21 @@ export default function UseCases() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <Breadcrumb data-testid="breadcrumb-usecases">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage data-testid="text-breadcrumb-usecases">Use Cases</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div>
           <h1 className="text-4xl font-bold tracking-tight" data-testid="text-usecases-title">
             Use Cases by Industry

@@ -99,6 +99,7 @@ Preferred communication style: Simple, everyday language.
 - Notification system with unread count badges
 - Cost calculator for team-based pricing estimation
 - Industry-specific use case explorer
+- Breadcrumb navigation on all pages for easy wayfinding
 
 **Data Export:**
 - CSV export functionality for favorites and comparisons
@@ -158,4 +159,14 @@ Preferred communication style: Simple, everyday language.
 - Card-based layouts with consistent border radius (9px/6px/3px)
 - Badge variants for categorization and status
 - Icon-driven navigation with visual feedback
+- Breadcrumb navigation with shadcn Breadcrumb component (ChevronRight separators)
 - Responsive grid layouts with mobile considerations
+
+**Navigation Features:**
+- Breadcrumbs on all pages showing hierarchical navigation:
+  * Service Detail: Home > [Category] > [Service Name]
+  * All other pages: Home > [Page Name]
+- Clickable category badges that filter catalog and navigate to home
+- "View All [Category]" button in similar services section
+- Logo-based service cards with fallback to initials
+- Price formatting with "From" prefix for paid services

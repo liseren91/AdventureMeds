@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,14 @@ import { MOCK_SERVICES } from "@/lib/mockData";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function CostCalculator() {
   const [teamSize, setTeamSize] = useState(1);
@@ -48,7 +57,21 @@ export default function CostCalculator() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <Breadcrumb data-testid="breadcrumb-calculator">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage data-testid="text-breadcrumb-calculator">Cost Calculator</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div>
           <h1 className="text-4xl font-bold tracking-tight" data-testid="text-calculator-title">
             Cost Calculator

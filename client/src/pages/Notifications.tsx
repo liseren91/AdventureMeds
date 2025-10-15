@@ -1,8 +1,17 @@
+import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Check, Trash2 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function Notifications() {
   const { 
@@ -49,7 +58,21 @@ export default function Notifications() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+        <Breadcrumb data-testid="breadcrumb-notifications">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage data-testid="text-breadcrumb-notifications">Notifications</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold tracking-tight flex items-center gap-3" data-testid="text-notifications-title">

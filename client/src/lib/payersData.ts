@@ -33,6 +33,10 @@ export interface Purchase {
   status: "active" | "cancelled";
   billingCycle: "monthly" | "yearly";
   payerId?: string;
+  // Service access credentials
+  login?: string;
+  password?: string;
+  paymentUrl?: string;
 }
 
 export const MOCK_PAYERS: Payer[] = [

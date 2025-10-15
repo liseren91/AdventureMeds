@@ -10,9 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { Payer, Transaction } from "@/lib/payersData";
@@ -54,6 +55,9 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const [, setLocation] = useLocation();
   const [payers, setPayers] = useState<Payer[]>([]);
   const [selectedPayerId, setSelectedPayerId] = useState<string>("");
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [paymentUrl, setPaymentUrl] = useState("");
 
   useEffect(() => {
     const stored = localStorage.getItem("payers");
@@ -90,6 +94,9 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
       status: "active" as const,
       billingCycle: billingCycle,
       payerId: selectedPayerId,
+      login: login || undefined,
+      password: password || undefined,
+      paymentUrl: paymentUrl || undefined,
     };
 
     const existing = localStorage.getItem("userPurchases");
@@ -134,6 +141,9 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
       setStep("select");
       setSelectedPlan(1);
       setBillingCycle("monthly");
+      setLogin("");
+      setPassword("");
+      setPaymentUrl("");
     }, 200);
   };
 
@@ -312,6 +322,53 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                         </div>
                       ))}
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Info className="h-5 w-5" />
+                    <h3 className="font-semibold">Информация о доступе</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Логин и пароль вводятся вручную. Рекомендуем запросить это у данного сервиса, или создать отдельный аккаунт для него.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="service-login">Логин в сервисе</Label>
+                    <Input
+                      id="service-login"
+                      type="text"
+                      placeholder="username или email"
+                      value={login}
+                      onChange={(e) => setLogin(e.target.value)}
+                      data-testid="input-service-login"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="service-password">Пароль от сервиса</Label>
+                    <Input
+                      id="service-password"
+                      type="password"
+                      placeholder="Пароль"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      data-testid="input-service-password"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="payment-url">Ссылка на оплату сервиса</Label>
+                    <Input
+                      id="payment-url"
+                      type="url"
+                      placeholder="https://..."
+                      value={paymentUrl}
+                      onChange={(e) => setPaymentUrl(e.target.value)}
+                      data-testid="input-payment-url"
+                    />
                   </div>
                 </CardContent>
               </Card>

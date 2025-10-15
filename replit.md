@@ -91,9 +91,15 @@ Preferred communication style: Simple, everyday language.
 
 **Purchase Flow:**
 - `PurchaseDialog.tsx`: 3-step purchase modal (select plan → confirm → success)
-- Integrated with ServiceDetail page via "Subscribe Now" button and "Купить" buttons on service cards
+- Integrated with ServiceDetail page via "Subscribe Now" button
 - Supports monthly/yearly billing cycle toggle with 20% yearly discount indicator
 - Plan selection via radio groups with visual feedback
+- **Service Access Credentials:**
+  - Login field for service username/email
+  - Password field for service password
+  - Payment URL field for service payment link
+  - Info text guides users to provide credentials manually
+  - Credentials saved with purchase and displayed in account
 - **Payer Integration:**
   - Payer selection dropdown on confirm step
   - Real-time balance checking with insufficient funds warning
@@ -110,6 +116,11 @@ Preferred communication style: Simple, everyday language.
   - Smart payment status badges: Urgent (≤3 days, red), Soon (≤7 days, yellow), Active (>7 days, green)
   - Auto-calculated next payment dates based on billing cycle (monthly/yearly)
   - Days-until-payment display (Today/Tomorrow/In X days)
+- **My Services Tab:**
+  - Displays all active subscriptions with service details
+  - Shows saved service credentials (login, masked password, payment URL)
+  - Credentials displayed in dedicated "Доступ к сервису" section
+  - Payment URL shown as clickable link
 - Subscription management with cancel functionality
 - Purchase history with status tracking (active/cancelled)
 - User profile with avatar and editable information (UI only)
@@ -122,7 +133,12 @@ Preferred communication style: Simple, everyday language.
   - "В корзину" button on each service card adds middle-tier plan with monthly billing by default
   - Cart icon in navbar with live counter badge showing number of items
   - Cart page (`/cart`) displays all cart items with ability to remove individual items
-  - CheckoutDialog integrates with payer system for batch purchases
+  - **Expandable Credentials Section per Cart Item:**
+    - Click expand button (chevron) to reveal credential fields
+    - Login, password, and payment URL fields for each service
+    - Auto-saves to localStorage on change
+    - Credentials included in purchase when checking out
+  - Payer selection with balance validation
   - Automatic cart clearing on successful purchase
   - localStorage persistence for cart items (frontend only, no backend)
 - **Advanced Filtering System with 7 Categories:**

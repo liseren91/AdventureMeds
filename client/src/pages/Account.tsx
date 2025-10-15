@@ -35,6 +35,10 @@ interface Purchase {
   purchaseDate: string;
   status: "active" | "cancelled";
   billingCycle: "monthly" | "yearly";
+  payerId?: string;
+  login?: string;
+  password?: string;
+  paymentUrl?: string;
 }
 
 export default function Account() {
@@ -342,7 +346,7 @@ export default function Account() {
                             <p className="text-sm text-muted-foreground mb-2">
                               {service.category} • {service.description.substring(0, 80)}...
                             </p>
-                            <div className="flex flex-wrap gap-3 text-sm">
+                            <div className="flex flex-wrap gap-3 text-sm mb-3">
                               <span className="text-muted-foreground">
                                 Plan: <strong className="text-foreground">{purchase.planName}</strong>
                               </span>
@@ -353,6 +357,37 @@ export default function Account() {
                                 Since: <strong className="text-foreground">{new Date(purchase.purchaseDate).toLocaleDateString()}</strong>
                               </span>
                             </div>
+                            {(purchase.login || purchase.password || purchase.paymentUrl) && (
+                              <div className="p-3 bg-muted/50 rounded-md space-y-2 text-sm">
+                                <h4 className="font-medium text-xs text-muted-foreground uppercase">Доступ к сервису</h4>
+                                {purchase.login && (
+                                  <div>
+                                    <span className="text-muted-foreground">Логин: </span>
+                                    <span className="font-mono" data-testid={`text-login-${purchase.id}`}>{purchase.login}</span>
+                                  </div>
+                                )}
+                                {purchase.password && (
+                                  <div>
+                                    <span className="text-muted-foreground">Пароль: </span>
+                                    <span className="font-mono" data-testid={`text-password-${purchase.id}`}>••••••••</span>
+                                  </div>
+                                )}
+                                {purchase.paymentUrl && (
+                                  <div>
+                                    <span className="text-muted-foreground">Ссылка на оплату: </span>
+                                    <a 
+                                      href={purchase.paymentUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-primary hover:underline font-mono break-all"
+                                      data-testid={`link-payment-url-${purchase.id}`}
+                                    >
+                                      {purchase.paymentUrl}
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-2">

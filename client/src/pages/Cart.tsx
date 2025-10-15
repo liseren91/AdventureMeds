@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ShoppingCart, 
   Trash2, 
@@ -9,9 +11,11 @@ import {
   User, 
   AlertTriangle,
   CheckCircle2,
-  ShoppingBag
+  ShoppingBag,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
-import { CartItem, getCartFromStorage, removeFromCart, clearCart } from "@/lib/cartData";
+import { CartItem, getCartFromStorage, removeFromCart, clearCart, updateCartItemCredentials } from "@/lib/cartData";
 import { Payer, Transaction } from "@/lib/payersData";
 import {
   Select,
@@ -35,6 +39,7 @@ export default function Cart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [payers, setPayers] = useState<Payer[]>([]);
   const [selectedPayerId, setSelectedPayerId] = useState<string>("");
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -58,6 +63,34 @@ export default function Cart() {
       title: "Удалено из корзины",
       description: "Сервис успешно удален из корзины",
     });
+  };
+
+  const toggleExpanded = (itemId: string) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(itemId)) {
+      newExpanded.delete(itemId);
+    } else {
+      newExpanded.add(itemId);
+    }
+    setExpandedItems(newExpanded);
+  };
+
+  const handleCredentialsUpdate = (
+    itemId: string,
+    field: "login" | "password" | "paymentUrl",
+    value: string
+  ) => {
+    const item = cartItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    const credentials = {
+      login: field === "login" ? value : item.login,
+      password: field === "password" ? value : item.password,
+      paymentUrl: field === "paymentUrl" ? value : item.paymentUrl,
+    };
+
+    updateCartItemCredentials(itemId, credentials);
+    setCartItems(getCartFromStorage());
   };
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
@@ -94,6 +127,9 @@ export default function Cart() {
         status: "active" as const,
         billingCycle: item.billingCycle,
         payerId: selectedPayerId,
+        login: item.login,
+        password: item.password,
+        paymentUrl: item.paymentUrl,
       };
 
       const existing = localStorage.getItem("userPurchases");
@@ -207,58 +243,122 @@ export default function Cart() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item) => (
-            <Card key={item.id} className="hover-elevate" data-testid={`cart-item-${item.id}`}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    {item.serviceLogoUrl ? (
-                      <img 
-                        src={item.serviceLogoUrl} 
-                        alt={item.serviceName}
-                        className="w-16 h-16 object-contain rounded-md"
-                      />
-                    ) : (
-                      <div 
-                        className="w-16 h-16 rounded-md flex items-center justify-center"
-                        style={{ backgroundColor: item.serviceColor }}
-                      >
-                        <span className="text-white font-bold text-xl">
-                          {item.serviceName.charAt(0)}
-                        </span>
+          {cartItems.map((item) => {
+            const isExpanded = expandedItems.has(item.id);
+            return (
+              <Card key={item.id} className="hover-elevate" data-testid={`cart-item-${item.id}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      {item.serviceLogoUrl ? (
+                        <img 
+                          src={item.serviceLogoUrl} 
+                          alt={item.serviceName}
+                          className="w-16 h-16 object-contain rounded-md"
+                        />
+                      ) : (
+                        <div 
+                          className="w-16 h-16 rounded-md flex items-center justify-center"
+                          style={{ backgroundColor: item.serviceColor }}
+                        >
+                          <span className="text-white font-bold text-xl">
+                            {item.serviceName.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg" data-testid={`text-service-name-${item.id}`}>
+                          {item.serviceName}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {item.planName}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="secondary" className="capitalize">
+                            {item.billingCycle === "monthly" ? "Ежемесячно" : "Ежегодно"}
+                          </Badge>
+                        </div>
                       </div>
-                    )}
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg" data-testid={`text-service-name-${item.id}`}>
-                        {item.serviceName}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {item.planName}
+                    </div>
+                    <div className="text-right flex flex-col items-end gap-3">
+                      <p className="text-2xl font-bold" data-testid={`text-price-${item.id}`}>
+                        ${item.price.toFixed(2)}
                       </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="secondary" className="capitalize">
-                          {item.billingCycle === "monthly" ? "Ежемесячно" : "Ежегодно"}
-                        </Badge>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleExpanded(item.id)}
+                          data-testid={`button-toggle-credentials-${item.id}`}
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveItem(item.id)}
+                          data-testid={`button-remove-${item.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right flex flex-col items-end gap-3">
-                    <p className="text-2xl font-bold" data-testid={`text-price-${item.id}`}>
-                      ${item.price.toFixed(2)}
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRemoveItem(item.id)}
-                      data-testid={`button-remove-${item.id}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                  {isExpanded && (
+                    <div className="mt-6 pt-6 border-t space-y-4">
+                      <h4 className="font-semibold text-sm">Информация о доступе</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor={`login-${item.id}`} className="text-xs">
+                            Логин в сервисе
+                          </Label>
+                          <Input
+                            id={`login-${item.id}`}
+                            type="text"
+                            placeholder="username или email"
+                            value={item.login || ""}
+                            onChange={(e) => handleCredentialsUpdate(item.id, "login", e.target.value)}
+                            data-testid={`input-login-${item.id}`}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`password-${item.id}`} className="text-xs">
+                            Пароль от сервиса
+                          </Label>
+                          <Input
+                            id={`password-${item.id}`}
+                            type="password"
+                            placeholder="Пароль"
+                            value={item.password || ""}
+                            onChange={(e) => handleCredentialsUpdate(item.id, "password", e.target.value)}
+                            data-testid={`input-password-${item.id}`}
+                          />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor={`payment-url-${item.id}`} className="text-xs">
+                            Ссылка на оплату сервиса
+                          </Label>
+                          <Input
+                            id={`payment-url-${item.id}`}
+                            type="url"
+                            placeholder="https://..."
+                            value={item.paymentUrl || ""}
+                            onChange={(e) => handleCredentialsUpdate(item.id, "paymentUrl", e.target.value)}
+                            data-testid={`input-payment-url-${item.id}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="lg:col-span-1">

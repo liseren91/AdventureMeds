@@ -9,6 +9,10 @@ export interface CartItem {
   price: number;
   billingCycle: "monthly" | "yearly";
   addedAt: string;
+  // Service access credentials
+  login?: string;
+  password?: string;
+  paymentUrl?: string;
 }
 
 export interface CartSummary {
@@ -45,6 +49,19 @@ export const removeFromCart = (itemId: string) => {
   const cartItems = getCartFromStorage();
   const filtered = cartItems.filter(item => item.id !== itemId);
   saveCartToStorage(filtered);
+};
+
+export const updateCartItemCredentials = (
+  itemId: string, 
+  credentials: { login?: string; password?: string; paymentUrl?: string }
+) => {
+  const cartItems = getCartFromStorage();
+  const updated = cartItems.map(item => 
+    item.id === itemId 
+      ? { ...item, ...credentials }
+      : item
+  );
+  saveCartToStorage(updated);
 };
 
 export const clearCart = () => {

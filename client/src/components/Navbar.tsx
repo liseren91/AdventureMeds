@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp } from "lucide-react";
+import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -135,6 +135,18 @@ export default function Navbar({
               <Link href="/job-impact">
                 <TrendingUp className="h-4 w-4" />
                 Job Impact
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/account") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-account"
+            >
+              <Link href="/account">
+                <User className="h-4 w-4" />
+                Account
               </Link>
             </Button>
           </div>

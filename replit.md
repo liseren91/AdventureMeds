@@ -106,6 +106,7 @@ Preferred communication style: Simple, everyday language.
 - Notification system with unread count badges
 - Cost calculator for team-based pricing estimation
 - Industry-specific use case explorer
+- **Job Impact Index**: Analyze how AI impacts different professions with searchable table showing AI impact scores (0-100%), task counts, and available AI tools
 - Breadcrumb navigation on all pages for easy wayfinding
 
 **Data Export:**

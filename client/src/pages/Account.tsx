@@ -14,7 +14,9 @@ import {
   ExternalLink,
   Download,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Upload,
+  FileText
 } from "lucide-react";
 import { Link } from "wouter";
 import { MOCK_SERVICES } from "@/lib/mockData";
@@ -33,9 +35,11 @@ interface Purchase {
   planName: string;
   price: number;
   purchaseDate: string;
-  status: "active" | "cancelled";
+  status: "active" | "cancelled" | "pending_payment";
   billingCycle: "monthly" | "yearly";
   payerId?: string;
+  paymentMethod?: "card" | "invoice" | "balance" | "yumoney" | "sbp" | "sberpay";
+  invoiceUrl?: string;
   login?: string;
   password?: string;
   paymentUrl?: string;
@@ -52,7 +56,28 @@ export default function Account() {
     }
   }, []);
 
-  const activePurchases = purchases.filter(p => p.status === "active");
+  const activePurchases = purchases.filter(p => p.status === "active" || p.status === "pending_payment");
+
+  const handleUploadReceipt = (purchaseId: string) => {
+    const purchase = purchases.find(p => p.id === purchaseId);
+    if (!purchase) return;
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,.pdf';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const updatedPurchases = purchases.map(p => 
+          p.id === purchaseId ? { ...p, status: "active" as const } : p
+        );
+        setPurchases(updatedPurchases);
+        localStorage.setItem("userPurchases", JSON.stringify(updatedPurchases));
+        alert('Спасибо! Счет загружен, заказ активирован.');
+      }
+    };
+    input.click();
+  };
   const totalSpending = purchases.reduce((sum, p) => sum + p.price, 0);
 
   const getPurchasedService = (serviceId: string) => {
@@ -339,9 +364,15 @@ export default function Account() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-semibold text-lg">{service.name}</h3>
-                              <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                                Active
-                              </Badge>
+                              {purchase.status === "pending_payment" ? (
+                                <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
+                                  Ожидает оплаты
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                                  Active
+                                </Badge>
+                              )}
                             </div>
                             <p className="text-sm text-muted-foreground mb-2">
                               {service.category} • {service.description.substring(0, 80)}...
@@ -391,20 +422,53 @@ export default function Account() {
                           </div>
                         </div>
                         <div className="flex gap-2">
+                          {purchase.status === "pending_payment" && purchase.paymentMethod === "invoice" && (
+                            <>
+                              {purchase.invoiceUrl && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => {
+                                    if (purchase.invoiceUrl) {
+                                      const link = document.createElement('a');
+                                      link.href = purchase.invoiceUrl;
+                                      link.download = `Счет_${purchase.id}.txt`;
+                                      link.click();
+                                    }
+                                  }}
+                                  data-testid={`button-download-invoice-${purchase.id}`}
+                                >
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Скачать счет
+                                </Button>
+                              )}
+                              <Button 
+                                variant="default" 
+                                size="sm"
+                                onClick={() => handleUploadReceipt(purchase.id)}
+                                data-testid={`button-upload-receipt-${purchase.id}`}
+                              >
+                                <Upload className="h-4 w-4 mr-2" />
+                                Загрузить счет
+                              </Button>
+                            </>
+                          )}
                           <Link href={`/service/${service.id}`}>
                             <Button variant="outline" size="sm" data-testid={`button-view-${purchase.id}`}>
                               <ExternalLink className="h-4 w-4 mr-2" />
                               View Details
                             </Button>
                           </Link>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleCancelSubscription(purchase.id)}
-                            data-testid={`button-cancel-${purchase.id}`}
-                          >
-                            Cancel
-                          </Button>
+                          {purchase.status !== "pending_payment" && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleCancelSubscription(purchase.id)}
+                              data-testid={`button-cancel-${purchase.id}`}
+                            >
+                              Cancel
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>

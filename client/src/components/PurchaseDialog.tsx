@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock, Smartphone, Wallet } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock, Smartphone, Wallet, FileText, Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -88,27 +88,43 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
       return;
     }
 
-    // If individual payer, go to payment screen
-    if (selectedPayer.type === "individual") {
-      setStep("payment");
-      return;
-    }
+    // All payers go to payment screen
+    setStep("payment");
+  };
 
-    // For company payers, check funds and complete purchase
-    if (hasInsufficientFunds) {
-      toast({
-        title: "Недостаточно средств",
-        description: "У выбранного плательщика недостаточно средств",
-        variant: "destructive",
-      });
-      return;
-    }
+  const generateInvoice = () => {
+    if (!selectedPayer || selectedPayer.type !== "company") return "";
+    
+    const invoiceData = `
+СЧЕТ НА ОПЛАТУ №${Date.now()}
+от ${new Date().toLocaleDateString('ru-RU')}
 
-    completePurchase();
+Плательщик: ${selectedPayer.companyName}
+ИНН: ${selectedPayer.inn || ""}
+КПП: ${selectedPayer.kpp || ""}
+
+Услуга: ${service.name} - ${tier.name}
+Период оплаты: ${billingCycle === "monthly" ? "Ежемесячно" : "Ежегодно"}
+Стоимость: ${priceValue} ₽
+
+Всего к оплате: ${priceValue} ₽
+    `.trim();
+    
+    const blob = new Blob([invoiceData], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    return url;
   };
 
   const completePurchase = () => {
     if (!selectedPayer) return;
+
+    let invoiceUrl = undefined;
+    let purchaseStatus: "active" | "pending_payment" = "active";
+    
+    if (selectedPaymentMethod === "invoice") {
+      invoiceUrl = generateInvoice();
+      purchaseStatus = "pending_payment";
+    }
 
     const purchase = {
       id: Date.now().toString(),
@@ -116,9 +132,11 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
       planName: tier.name,
       price: priceValue,
       purchaseDate: new Date().toISOString(),
-      status: "active" as const,
+      status: purchaseStatus,
       billingCycle: billingCycle,
       payerId: selectedPayerId,
+      paymentMethod: selectedPaymentMethod,
+      invoiceUrl,
       login: login || undefined,
       password: password || undefined,
       paymentUrl: paymentUrl || undefined,
@@ -525,37 +543,39 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                 </CardContent>
               </Card>
 
-              {/* Top-up Amount */}
-              <Card>
-                <CardHeader>
-                  <h3 className="font-semibold">Пополнить счет на:</h3>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Input
-                    type="number"
-                    placeholder="2000"
-                    value={topUpAmount}
-                    onChange={(e) => setTopUpAmount(e.target.value)}
-                    className="text-lg"
-                    data-testid="input-topup-amount"
-                  />
-                  
-                  <div className="text-sm text-muted-foreground">Быстрый выбор суммы:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {[500, 1000, 2000, 5000, 10000].map((amount) => (
-                      <Button
-                        key={amount}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setTopUpAmount(amount.toString())}
-                        data-testid={`button-amount-${amount}`}
-                      >
-                        {amount} ₽
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Top-up Amount - Only for Individual */}
+              {selectedPayer.type === "individual" && (
+                <Card>
+                  <CardHeader>
+                    <h3 className="font-semibold">Пополнить счет на:</h3>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Input
+                      type="number"
+                      placeholder="2000"
+                      value={topUpAmount}
+                      onChange={(e) => setTopUpAmount(e.target.value)}
+                      className="text-lg"
+                      data-testid="input-topup-amount"
+                    />
+                    
+                    <div className="text-sm text-muted-foreground">Быстрый выбор суммы:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {[500, 1000, 2000, 5000, 10000].map((amount) => (
+                        <Button
+                          key={amount}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTopUpAmount(amount.toString())}
+                          data-testid={`button-amount-${amount}`}
+                        >
+                          {amount} ₽
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Payment Methods */}
               <Card>
@@ -563,82 +583,140 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                   <h3 className="font-semibold">Выберите способ оплаты</h3>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedPaymentMethod === "card" ? "border-primary bg-primary/5" : "hover-elevate"
-                    }`}
-                    onClick={() => setSelectedPaymentMethod("card")}
-                    data-testid="payment-method-card"
-                  >
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="h-5 w-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">Банковские карты</h4>
-                        <p className="text-sm text-muted-foreground">Mir, Visa, Mastercard</p>
+                  {selectedPayer.type === "company" ? (
+                    <>
+                      <div
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedPaymentMethod === "card" ? "border-primary bg-primary/5" : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod("card")}
+                        data-testid="payment-method-card"
+                      >
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-medium">Корпоративная карта</h4>
+                            <p className="text-sm text-muted-foreground">Карта компании</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedPaymentMethod === "yumoney" ? "border-primary bg-primary/5" : "hover-elevate"
-                    }`}
-                    onClick={() => setSelectedPaymentMethod("yumoney")}
-                    data-testid="payment-method-yumoney"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Wallet className="h-5 w-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">ЮMoney</h4>
-                        <p className="text-sm text-muted-foreground">Электронный кошелек</p>
+                      <div
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedPaymentMethod === "invoice" ? "border-primary bg-primary/5" : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod("invoice")}
+                        data-testid="payment-method-invoice"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-medium">Оплата по счету</h4>
+                            <p className="text-sm text-muted-foreground">Банковский счет организации</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedPaymentMethod === "card" ? "border-primary bg-primary/5" : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod("card")}
+                        data-testid="payment-method-card"
+                      >
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-medium">Банковские карты</h4>
+                            <p className="text-sm text-muted-foreground">Mir, Visa, Mastercard</p>
+                          </div>
+                        </div>
+                      </div>
 
-                  <div
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedPaymentMethod === "sbp" ? "border-primary bg-primary/5" : "hover-elevate"
-                    }`}
-                    onClick={() => setSelectedPaymentMethod("sbp")}
-                    data-testid="payment-method-sbp"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Smartphone className="h-5 w-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">СБП (Система быстрых платежей)</h4>
-                        <p className="text-sm text-muted-foreground">Перевод по номеру телефона</p>
+                      <div
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedPaymentMethod === "yumoney" ? "border-primary bg-primary/5" : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod("yumoney")}
+                        data-testid="payment-method-yumoney"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Wallet className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-medium">ЮMoney</h4>
+                            <p className="text-sm text-muted-foreground">Электронный кошелек</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedPaymentMethod === "sberpay" ? "border-primary bg-primary/5" : "hover-elevate"
-                    }`}
-                    onClick={() => setSelectedPaymentMethod("sberpay")}
-                    data-testid="payment-method-sberpay"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Building2 className="h-5 w-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">SberPay</h4>
-                        <p className="text-sm text-muted-foreground">Оплата через Сбербанк</p>
+                      <div
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedPaymentMethod === "sbp" ? "border-primary bg-primary/5" : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod("sbp")}
+                        data-testid="payment-method-sbp"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Smartphone className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-medium">СБП (Система быстрых платежей)</h4>
+                            <p className="text-sm text-muted-foreground">Перевод по номеру телефона</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+
+                      <div
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedPaymentMethod === "sberpay" ? "border-primary bg-primary/5" : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod("sberpay")}
+                        data-testid="payment-method-sberpay"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Building2 className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-medium">SberPay</h4>
+                            <p className="text-sm text-muted-foreground">Оплата через Сбербанк</p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
               {/* Actions */}
               <div className="space-y-3 pt-4 border-t">
-                <Button
-                  className="w-full"
-                  onClick={completePurchase}
-                  disabled={hasInsufficientFunds}
-                  data-testid="button-pay-from-balance"
-                >
-                  Списать с баланса
-                </Button>
+                {selectedPaymentMethod === "invoice" && selectedPayer.type === "company" ? (
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      completePurchase();
+                      const invoiceUrl = generateInvoice();
+                      if (invoiceUrl) {
+                        const link = document.createElement('a');
+                        link.href = invoiceUrl;
+                        link.download = `Счет_${Date.now()}.txt`;
+                        link.click();
+                      }
+                    }}
+                    data-testid="button-download-invoice"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Скачать счет и оформить заказ
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full"
+                    onClick={completePurchase}
+                    disabled={hasInsufficientFunds}
+                    data-testid="button-pay-from-balance"
+                  >
+                    Списать с баланса
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   className="w-full"

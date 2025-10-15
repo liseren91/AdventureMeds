@@ -30,9 +30,11 @@ export interface Purchase {
   planName: string;
   price: number;
   purchaseDate: string;
-  status: "active" | "cancelled";
+  status: "active" | "cancelled" | "pending_payment";
   billingCycle: "monthly" | "yearly";
   payerId?: string;
+  paymentMethod?: "card" | "invoice" | "balance" | "yumoney" | "sbp" | "sberpay";
+  invoiceUrl?: string;
   // Service access credentials
   login?: string;
   password?: string;

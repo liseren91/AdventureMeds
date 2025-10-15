@@ -104,26 +104,29 @@ export default function FilterPanel({
   onReset,
 }: FilterPanelProps) {
   const toggleFeature = (feature: string) => {
-    if (features.includes(feature)) {
-      onFeaturesChange(features.filter(f => f !== feature));
+    const currentFeatures = features || [];
+    if (currentFeatures.includes(feature)) {
+      onFeaturesChange(currentFeatures.filter(f => f !== feature));
     } else {
-      onFeaturesChange([...features, feature]);
+      onFeaturesChange([...currentFeatures, feature]);
     }
   };
 
   const toggleUseCase = (useCase: string) => {
-    if (useCases.includes(useCase)) {
-      onUseCasesChange(useCases.filter(u => u !== useCase));
+    const currentUseCases = useCases || [];
+    if (currentUseCases.includes(useCase)) {
+      onUseCasesChange(currentUseCases.filter(u => u !== useCase));
     } else {
-      onUseCasesChange([...useCases, useCase]);
+      onUseCasesChange([...currentUseCases, useCase]);
     }
   };
 
   const toggleTeamSize = (size: string) => {
-    if (teamSize.includes(size)) {
-      onTeamSizeChange(teamSize.filter(s => s !== size));
+    const currentTeamSize = teamSize || [];
+    if (currentTeamSize.includes(size)) {
+      onTeamSizeChange(currentTeamSize.filter(s => s !== size));
     } else {
-      onTeamSizeChange([...teamSize, size]);
+      onTeamSizeChange([...currentTeamSize, size]);
     }
   };
 
@@ -279,7 +282,7 @@ export default function FilterPanel({
               <div key={feature} className="flex items-center space-x-2">
                 <Checkbox
                   id={`feature-${feature}`}
-                  checked={features.includes(feature)}
+                  checked={(features || []).includes(feature)}
                   onCheckedChange={() => toggleFeature(feature)}
                   data-testid={`checkbox-feature-${feature.toLowerCase().replace(/\s+/g, '-')}`}
                 />
@@ -303,7 +306,7 @@ export default function FilterPanel({
               <div key={useCase} className="flex items-center space-x-2">
                 <Checkbox
                   id={`usecase-${useCase}`}
-                  checked={useCases.includes(useCase)}
+                  checked={(useCases || []).includes(useCase)}
                   onCheckedChange={() => toggleUseCase(useCase)}
                   data-testid={`checkbox-usecase-${useCase.toLowerCase().replace(/\s+/g, '-')}`}
                 />
@@ -327,7 +330,7 @@ export default function FilterPanel({
               <div key={size.value} className="flex items-center space-x-2">
                 <Checkbox
                   id={`teamsize-${size.value}`}
-                  checked={teamSize.includes(size.value)}
+                  checked={(teamSize || []).includes(size.value)}
                   onCheckedChange={() => toggleTeamSize(size.value)}
                   data-testid={`checkbox-teamsize-${size.value}`}
                 />

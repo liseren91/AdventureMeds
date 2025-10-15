@@ -1,14 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
 import ServiceCard from "@/components/ServiceCard";
 import SortSelect, { type SortOption } from "@/components/SortSelect";
-import { MOCK_SERVICES } from "@/lib/mockData";
+import { MOCK_SERVICES, MOCK_JOBS } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
-import { Download, GitCompare } from "lucide-react";
+import { Download, GitCompare, X } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -29,6 +31,27 @@ export default function Home() {
   const [newness, setNewness] = useState("all");
   const [teamSize, setTeamSize] = useState<string[]>([]);
   const [quickFilter, setQuickFilter] = useState("");
+  const [selectedJobTitle, setSelectedJobTitle] = useState<string | null>(null);
+
+  // Extract jobTitle from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const jobTitle = params.get('jobTitle');
+    if (jobTitle) {
+      setSelectedJobTitle(jobTitle);
+    }
+  }, []);
+
+  // Find selected job
+  const selectedJob = useMemo(() => {
+    if (!selectedJobTitle) return null;
+    return MOCK_JOBS.find(job => job.title === selectedJobTitle);
+  }, [selectedJobTitle]);
+
+  const clearJobFilter = () => {
+    setSelectedJobTitle(null);
+    setLocation('/');
+  };
 
   const handlePriceFilterChange = (filter: 'free' | 'freemium' | 'paid') => {
     setPriceFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
@@ -211,9 +234,13 @@ export default function Home() {
       const matchesTeamSize = teamSize.length === 0 || 
         teamSize.some(size => service.teamSize?.includes(size));
 
+      // Job title filter
+      const matchesJobTitle = !selectedJobTitle || 
+        (service.jobTitles && service.jobTitles.includes(selectedJobTitle));
+
       return matchesSearch && matchesCategory && matchesPrice && matchesRating && 
         matchesFeatures && matchesUseCases && matchesFreeTier && matchesPriceRange && 
-        matchesNewness && matchesTeamSize;
+        matchesNewness && matchesTeamSize && matchesJobTitle;
     });
 
     return filtered.sort((a, b) => {
@@ -243,7 +270,7 @@ export default function Home() {
       }
     });
   }, [searchQuery, selectedCategory, priceFilters, rating, sortBy, features, useCases, 
-    hasFreeTierOnly, priceRange, newness, teamSize]);
+    hasFreeTierOnly, priceRange, newness, teamSize, selectedJobTitle]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -301,6 +328,62 @@ export default function Home() {
           </aside>
 
           <main className="flex-1 space-y-6">
+            {selectedJob && (
+              <Card className="p-6 space-y-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl font-bold" data-testid="text-selected-job-title">
+                        {selectedJob.title}
+                      </h2>
+                      <Badge 
+                        variant="outline" 
+                        className={
+                          selectedJob.aiImpact >= 80 ? "bg-red-500/10 text-red-500 border-red-500/20" :
+                          selectedJob.aiImpact >= 60 ? "bg-orange-500/10 text-orange-500 border-orange-500/20" :
+                          selectedJob.aiImpact >= 40 ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
+                          "bg-green-500/10 text-green-500 border-green-500/20"
+                        }
+                      >
+                        {selectedJob.aiImpact}% AI Impact
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground">{selectedJob.description}</p>
+                  </div>
+                  <Button
+                    onClick={clearJobFilter}
+                    variant="ghost"
+                    size="icon"
+                    data-testid="button-clear-job-filter"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Professional Tasks:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedJob.tasks.map((task, index) => (
+                      <div 
+                        key={index} 
+                        className="flex items-start gap-2 text-sm"
+                        data-testid={`text-job-task-${index}`}
+                      >
+                        <span className="text-primary mt-0.5">•</span>
+                        <span className="text-muted-foreground">{task}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
+                    Showing AI services recommended for <strong>{selectedJob.title}</strong> ({filteredAndSortedServices.length} services)
+                  </p>
+                </div>
+              </Card>
+            )}
+
             <div className="flex items-center justify-between gap-4">
               <SortSelect value={sortBy} onChange={setSortBy} />
               <div className="flex items-center gap-2">

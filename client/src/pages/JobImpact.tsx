@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,7 @@ type SortField = "title" | "aiImpact" | "tasksCount" | "aisCount";
 type SortOrder = "asc" | "desc";
 
 export default function JobImpact() {
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField>("aiImpact");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -35,6 +37,10 @@ export default function JobImpact() {
       setSortField(field);
       setSortOrder("desc");
     }
+  };
+
+  const handleJobClick = (jobTitle: string) => {
+    setLocation(`/?jobTitle=${encodeURIComponent(jobTitle)}`);
   };
 
   const filteredAndSortedJobs = useMemo(() => {
@@ -188,7 +194,12 @@ export default function JobImpact() {
                 </TableRow>
               ) : (
                 filteredAndSortedJobs.map((job, index) => (
-                  <TableRow key={job.id} data-testid={`row-job-${job.id}`}>
+                  <TableRow 
+                    key={job.id} 
+                    data-testid={`row-job-${job.id}`}
+                    onClick={() => handleJobClick(job.title)}
+                    className="cursor-pointer hover-elevate"
+                  >
                     <TableCell className="font-medium text-muted-foreground">
                       {index + 1}
                     </TableCell>

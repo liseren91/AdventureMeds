@@ -2,9 +2,7 @@
 
 ## Overview
 
-This is a full-stack web application for discovering and comparing AI services for business use. The platform allows users to browse, search, filter, and compare various AI tools across categories like copywriting, design, marketing, and text processing. Users can save favorites, track viewing history, manage notifications, calculate costs, and explore industry-specific use cases.
-
-The application is built as a single-page application (SPA) with a React frontend and Express backend, designed to run on the Replit platform.
+This full-stack web application enables businesses to discover, compare, and manage AI services. It offers features for browsing, searching, filtering, and comparing various AI tools across categories like copywriting, design, marketing, and text processing. Users can save favorites, track viewing history, manage notifications, calculate costs, and explore industry-specific use cases. The platform also includes comprehensive features for managing service purchases, subscriptions, and financial transactions through a multi-entity payer system.
 
 ## User Preferences
 
@@ -12,262 +10,66 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
+### Frontend
 
-**Framework & Build Tools:**
-- React 18 with TypeScript for type-safe component development
-- Vite as the build tool and dev server for fast HMR (Hot Module Replacement)
-- Wouter for lightweight client-side routing (alternative to React Router)
-- Path aliases configured for clean imports (`@/`, `@shared/`, `@assets/`)
+The frontend is a React 18 SPA with TypeScript, built using Vite. It utilizes Wouter for routing and shadcn/ui (Radix UI + Tailwind CSS) for a consistent "New York" style UI with dark mode support. State management relies on React Context for global state, TanStack Query for server state, and localStorage for client-side persistence of user data (favorites, comparisons, history, cart, purchases, payers, transactions). Styling is managed with Tailwind CSS and custom CSS variables.
 
-**UI Component Strategy:**
-- shadcn/ui component library (Radix UI primitives with Tailwind styling)
-- "New York" style variant configured in components.json
-- Comprehensive component coverage including forms, dialogs, cards, navigation, data display
-- Dark mode support with class-based theme switching
-- Custom CSS variables for consistent theming (defined in index.css)
+### Backend
 
-**State Management:**
-- React Context API (AppContext) for global application state
-- TanStack Query (React Query) for server state and data fetching
-- Local state with useState/useEffect for component-level concerns
-- localStorage for persistence of favorites, comparison list, history, and notifications
-
-**Styling Approach:**
-- Tailwind CSS with custom configuration (neutral base color, custom border radius)
-- CSS custom properties for theme colors supporting light/dark modes
-- Hover and active state elevation effects via utility classes
-- PostCSS for CSS processing with autoprefixer
-
-### Backend Architecture
-
-**Server Framework:**
-- Express.js as the HTTP server framework
-- TypeScript for type safety across the stack
-- Development mode with tsx for hot reloading
-- Production build uses esbuild for efficient bundling
-
-**Development Environment:**
-- Replit-specific plugins for enhanced development experience:
-  - Runtime error overlay for debugging
-  - Cartographer for code navigation
-  - Dev banner for environment awareness
-- Vite middleware integration in development mode
-- Custom logging middleware for API request tracking
-
-**API Design:**
-- RESTful API pattern with `/api` prefix for all endpoints
-- JSON request/response format
-- Error handling middleware with status code and message propagation
-- Request/response logging with duration tracking and JSON payload capture
+The backend is an Express.js server developed with TypeScript, running with `tsx` for hot reloading in development and `esbuild` for production. It exposes a RESTful API with JSON communication and includes custom middleware for logging and error handling.
 
 ### Data Storage
 
-**Database Configuration:**
-- PostgreSQL via Neon serverless driver (@neondatabase/serverless)
-- Drizzle ORM for type-safe database operations
-- Schema defined in shared/schema.ts for code reuse between client/server
-- Zod validation schemas generated from Drizzle schemas
+The application uses PostgreSQL via Neon serverless driver and Drizzle ORM for type-safe database interactions. Key data models include:
+- **AI Services**: Comprehensive catalog with categories, pricing, features, and supported job titles.
+- **Jobs (Professions)**: Definitions of professions, their AI impact, and associated tasks.
+- **Users, Favorites, View History, Comparisons, Notifications**: Standard user-centric data.
+- **Payers**: Multi-entity financial accounts (companies/individuals) with balance tracking.
+- **Transactions**: Financial operations (deposit, withdrawal, purchase).
+- **Purchases**: Service subscriptions linked to payers with billing cycles and status.
 
-**Data Models:**
-- **Users:** Basic authentication with username/password
-- **AI Services:** Comprehensive service catalog with categories, pricing, ratings, features, **jobTitles** (array of professions this service supports)
-- **Jobs (Professions):** 20 professions with title, aiImpact (0-100%), tasksCount, aisCount, category, description, and **tasks** (array of professional tasks). Detailed tasks available for 5 professions as template for future data entry
-- **Favorites:** User-service relationships for saved items
-- **View History:** Tracking of viewed services per user
-- **Comparisons:** Saved service comparisons
-- **Notifications:** User notification system with read/unread status
-- **Payers:** Legal entities and individuals with balance tracking (companyName/inn/kpp for companies, firstName/lastName/passportNumber for individuals)
-- **Transactions:** Financial operations (deposit/withdrawal/purchase) with amount, date, comment, and optional service reference
-- **Purchases:** Service subscriptions linked to payers with billing cycle and status tracking
+### Key Components & Features
 
-**Storage Abstraction:**
-- IStorage interface defining CRUD operations
-- MemStorage implementation for in-memory development/testing
-- Designed for easy swapping to database-backed storage
-- Currently using mock data (MOCK_SERVICES) on frontend pending API implementation
+- **Service Catalog**: Browsing, advanced filtering (features, use cases, free tier, price range, newness, team size), sorting, and AI-powered search (future).
+- **Purchase Flow**: A 3-step modal for purchasing services, including plan selection, payer integration with real-time balance validation, and credential management. Success screen displays "Спасибо за ваш заказ!" with 1-7 day processing time notification. It records transactions and links purchases to payers.
+- **Shopping Cart System**: Frontend-only cart with credential input fields for each service, payer selection, balance validation, and dedicated success screen showing order summary with 1-7 day processing time notification.
+- **Account Management**: A personal cabinet with tabs for an enhanced dashboard overview (active services, monthly cost, upcoming payments), "My Services" (active subscriptions, credentials), purchase history, and settings.
+- **Job Impact Index**: Analyzes AI's impact on 20 professions, allowing users to filter services by profession and view profession-specific tasks.
+- **Finances/Payer Management**: A multi-entity payer system (companies/individuals) with payer creation, balance management (top-up/withdraw), service tracking per payer, and a complete transaction history.
+- **User Engagement**: Favorites, service comparison (up to 4 services), viewing history, notification system, and cost calculator.
+- **UI/UX**: Consistent card-based layouts, badge variants, icon-driven navigation, and breadcrumb navigation across all pages. Dark mode is default with HSL-based color system.
 
-### Key Components
+## External Dependencies
 
-**Purchase Flow:**
-- `PurchaseDialog.tsx`: 3-step purchase modal (select plan → confirm → success)
-- Integrated with ServiceDetail page via "Subscribe Now" button
-- Supports monthly/yearly billing cycle toggle with 20% yearly discount indicator
-- Plan selection via radio groups with visual feedback
-- **Service Access Credentials:**
-  - Login field for service username/email
-  - Password field for service password
-  - Payment URL field for service payment link
-  - Info text guides users to provide credentials manually
-  - Credentials saved with purchase and displayed in account
-- **Payer Integration:**
-  - Payer selection dropdown on confirm step
-  - Real-time balance checking with insufficient funds warning
-  - Automatic balance deduction on successful purchase
-  - Transaction recording for audit trail
-  - Purchase linked to payer for service tracking
-- localStorage-based persistence for payers, transactions, and purchases (frontend-only, no backend)
+### UI & Component Libraries
 
-**Account Management:**
-- `Account.tsx`: Personal cabinet with 4 tabs (Overview, My Services, History, Settings)
-- **Enhanced Dashboard Overview:**
-  - 4 metric cards: Active Services, Monthly Cost, Next Payment (with date), Payment Method
-  - Upcoming Payments section with next 5 payments sorted by date
-  - Smart payment status badges: Urgent (≤3 days, red), Soon (≤7 days, yellow), Active (>7 days, green)
-  - Auto-calculated next payment dates based on billing cycle (monthly/yearly)
-  - Days-until-payment display (Today/Tomorrow/In X days)
-- **My Services Tab:**
-  - Displays all active subscriptions with service details
-  - Shows saved service credentials (login, masked password, payment URL)
-  - Credentials displayed in dedicated "Доступ к сервису" section
-  - Payment URL shown as clickable link
-- Subscription management with cancel functionality
-- Purchase history with status tracking (active/cancelled)
-- User profile with avatar and editable information (UI only)
+- **shadcn/ui**: Component library based on Radix UI primitives and Tailwind CSS.
+- **Lucide React**: Iconography.
+- **cmdk**: Command palette.
+- **embla-carousel-react**: Carousel functionality.
+- **vaul**: Drawer components.
+- **react-day-picker**: Calendar/date selection.
 
-### Application Features
+### Form & Validation
 
-**Core Functionality:**
-- Service catalog browsing with grid layout (3 columns × 2 rows per page)
-- **Shopping Cart System (Frontend Only)**:
-  - "В корзину" button on each service card adds middle-tier plan with monthly billing by default
-  - Cart icon in navbar with live counter badge showing number of items
-  - Cart page (`/cart`) displays all cart items with ability to remove individual items
-  - **Expandable Credentials Section per Cart Item:**
-    - Click expand button (chevron) to reveal credential fields
-    - Login, password, and payment URL fields for each service
-    - Auto-saves to localStorage on change
-    - Credentials included in purchase when checking out
-  - Payer selection with balance validation
-  - Automatic cart clearing on successful purchase
-  - localStorage persistence for cart items (frontend only, no backend)
-- **Advanced Filtering System with 7 Categories:**
-  - **Features Filter**: Multi-select with AND logic (service must have all selected features)
-  - **Use Cases Filter**: Multi-select with OR logic (service must match at least one use case)
-  - **Free Tier Filter**: Toggle to show only services with free versions
-  - **Price Range Filter**: Dropdown to filter by pricing tiers ($0-10, $10-50, $50-100, $100+)
-  - **Newness Filter**: Time-based filtering (Last month, Last 3 months, Last 6 months)
-  - **Team Size Filter**: Multi-select for individual, small (2-10), medium (10-100), enterprise (100+)
-  - **Quick Filters**: Badge-based preset combinations (Popular, New, Best Free, For Teams)
-- Sorting options: rating, popularity, date, price
-- AI-powered search (placeholder for future implementation)
-- Detailed service pages with full descriptions, features, pricing tiers, use cases
+- **React Hook Form**: Form state management.
+- **Zod**: Runtime type validation and schema definition.
 
-**User Features:**
-- Favorites management with localStorage persistence
-- Service comparison (up to 4 services) with feature matrix
-- Viewing history tracking
-- Notification system with unread count badges
-- Cost calculator for team-based pricing estimation
-- Industry-specific use case explorer
-- **Job Impact Index with Professional Filter**: 
-  - Analyze how AI impacts 20 professions with searchable, sortable table
-  - Click any job to filter services by profession
-  - View profession-specific tasks for 5 detailed professions (12-18 tasks per job)
-  - Services filtered by jobTitles field showing profession-relevant AI tools
-  - Clear filter to return to full catalog
-  - 5 professions with detailed tasks serve as template for future data entry
-- **Personal Account/Cabinet (Frontend Only)**:
-  - User profile with avatar and basic information
-  - Service purchase/subscription flow with 3-step process (select plan → confirm → success)
-  - **Enhanced Dashboard Overview:**
-    - 4 metric cards: Active Services count, Monthly Cost sum, Next Payment (amount + date), Payment Method
-    - Upcoming Payments section showing next 5 payments sorted by date
-    - Smart status badges: Urgent (≤3 days, red), Soon (≤7 days, yellow), Active (>7 days, green)
-    - Auto-calculated next payment dates based on billing cycle
-    - Relative time display: "Today", "Tomorrow", or "In X days"
-  - Active subscriptions management with cancel functionality
-  - Purchase history tracking with status badges
-  - Payment method display (UI only, no real payment processing)
-  - Tab-based navigation: Overview, My Services, Purchase History, Settings
-  - localStorage persistence for all purchase data (frontend only, no backend)
-- **Finances/Payer Management (Frontend Only)**:
-  - Multi-entity payer system supporting both legal entities (companies) and individuals
-  - **Payer Cards**: Display balance, type, associated services, and fund sufficiency indicators
-  - **Payer Creation (AddPayerDialog)**: 
-    - Company payers: companyName, INN, KPP fields
-    - Individual payers: firstName, lastName, passportNumber fields
-  - **Balance Management**:
-    - Top-up funds via multiple payment methods (card, invoice, ЮMoney, СБП, SberPay)
-    - Withdraw funds with method selection
-    - Real-time balance updates across all components
-  - **Service Tracking**: View all services purchased by each payer
-  - **Transaction History**: Complete audit trail of deposits, withdrawals, and purchases
-  - **Purchase Integration**: 
-    - Select payer during checkout with balance validation
-    - Automatic fund deduction on successful purchase
-    - Insufficient funds warning with alternative payer suggestion
-  - Navigation via Wallet icon in navbar between Job Impact and Account
-  - localStorage persistence for payers and transactions (frontend only, no backend)
-- Breadcrumb navigation on all pages for easy wayfinding
+### Utilities
 
-**Data Export:**
-- CSV export functionality for favorites and comparisons
-- PDF export placeholder (requires library integration)
+- **class-variance-authority (cva)**: Variant-based styling.
+- **clsx + tailwind-merge**: Conditional class composition.
+- **date-fns**: Date manipulation and formatting.
+- **nanoid**: Unique ID generation.
 
-### External Dependencies
+### Database & ORM
 
-**UI & Component Libraries:**
-- Radix UI primitives for accessible, unstyled components
-- Lucide React for iconography
-- cmdk for command palette patterns
-- embla-carousel-react for carousel functionality
-- vaul for drawer components
-- react-day-picker for calendar/date selection
+- **@neondatabase/serverless**: PostgreSQL connectivity.
+- **drizzle-orm**: TypeScript-first ORM.
+- **drizzle-zod**: Automatic Zod schema generation from database schema.
 
-**Form & Validation:**
-- React Hook Form for form state management
-- @hookform/resolvers for validation schema integration
-- Zod for runtime type validation and schema definition
+### Development Tools
 
-**Utilities:**
-- class-variance-authority (cva) for variant-based styling
-- clsx + tailwind-merge for conditional class composition
-- date-fns for date manipulation and formatting
-- nanoid for unique ID generation
-
-**Development Tools:**
-- drizzle-kit for database migrations and schema management
-- @replit/* plugins for enhanced Replit development experience
-- esbuild for production bundling
-
-**Database & ORM:**
-- @neondatabase/serverless for PostgreSQL connectivity
-- drizzle-orm for TypeScript-first ORM
-- drizzle-zod for automatic Zod schema generation from database schema
-- connect-pg-simple for PostgreSQL session storage (configured but not actively used)
-
-**Session Management:**
-- express-session integration prepared (via connect-pg-simple)
-- Currently using cookie-based credentials for API requests
-
-### Design System
-
-**Color Scheme:**
-- Dark mode as default (class="dark" on root HTML)
-- HSL-based color system with CSS custom properties
-- Neutral base color palette
-- High contrast for accessibility
-- Elevation effects via background overlays (--elevate-1, --elevate-2)
-
-**Typography:**
-- Multiple font families configured (Architects Daughter, DM Sans, Fira Code, Geist Mono)
-- Consistent typographic hierarchy across components
-- Font preloading from Google Fonts
-
-**Component Patterns:**
-- Card-based layouts with consistent border radius (9px/6px/3px)
-- Badge variants for categorization and status
-- Icon-driven navigation with visual feedback
-- Breadcrumb navigation with shadcn Breadcrumb component (ChevronRight separators)
-- Responsive grid layouts with mobile considerations
-
-**Navigation Features:**
-- Breadcrumbs on all pages showing hierarchical navigation:
-  * Service Detail: Home > [Category] > [Service Name]
-  * All other pages: Home > [Page Name]
-- Clickable category badges that filter catalog and navigate to home
-- "View All [Category]" button in similar services section
-- Logo-based service cards with fallback to initials
-- Price formatting with "From" prefix for paid services
-- **Job-based filtering**: Click any job in Job Impact Index to navigate to catalog with ?jobTitle parameter, showing only profession-relevant services and tasks
+- **drizzle-kit**: Database migrations and schema management.
+- **@replit/* plugins**: Enhanced Replit development experience.
+- **esbuild**: Production bundling.

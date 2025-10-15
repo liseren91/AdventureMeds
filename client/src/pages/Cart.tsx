@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   ShoppingBag,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Clock
 } from "lucide-react";
 import { CartItem, getCartFromStorage, removeFromCart, clearCart, updateCartItemCredentials } from "@/lib/cartData";
 import { Payer, Transaction } from "@/lib/payersData";
@@ -40,6 +41,9 @@ export default function Cart() {
   const [payers, setPayers] = useState<Payer[]>([]);
   const [selectedPayerId, setSelectedPayerId] = useState<string>("");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [purchasedItemsCount, setPurchasedItemsCount] = useState(0);
+  const [purchasedTotal, setPurchasedTotal] = useState(0);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -116,6 +120,10 @@ export default function Cart() {
       return;
     }
 
+    // Save purchase info for success screen
+    setPurchasedItemsCount(cartItems.length);
+    setPurchasedTotal(totalPrice);
+
     // Process all purchases
     cartItems.forEach(item => {
       const purchase = {
@@ -165,15 +173,87 @@ export default function Cart() {
     clearCart();
     setCartItems([]);
 
-    toast({
-      title: "Оплата успешна!",
-      description: `Куплено ${cartItems.length} сервисов на сумму $${totalPrice.toFixed(2)}`,
-    });
-
-    setTimeout(() => {
-      setLocation("/account");
-    }, 1500);
+    // Show success screen
+    setShowSuccess(true);
   };
+
+  if (showSuccess) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Корзина</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <div className="flex flex-col items-center text-center space-y-6 py-8">
+          <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center">
+            <CheckCircle2 className="h-16 w-16 text-green-500" />
+          </div>
+          
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold">Спасибо за ваш заказ!</h1>
+            <p className="text-muted-foreground max-w-md">
+              Ваш заказ принят и находится в обработке. Вы можете проверить статус заказа в личном кабинете.
+            </p>
+          </div>
+
+          <Card className="bg-muted/50 w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Количество сервисов:</span>
+                  <span className="font-medium">{purchasedItemsCount}</span>
+                </div>
+                <div className="flex justify-between pt-3 border-t">
+                  <span className="text-muted-foreground">Общая сумма:</span>
+                  <span className="font-bold text-lg">${purchasedTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-blue-500/10 border-blue-500/20 w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                <div className="space-y-1 text-left">
+                  <h4 className="font-semibold text-blue-500">Срок обработки заказа</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Обработка вашего заказа занимает от 1 до 7 дней. После активации сервисов вы получите уведомление, и они отобразятся в вашем личном кабинете.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-3 pt-4 w-full max-w-md">
+            <Button 
+              variant="outline" 
+              className="flex-1" 
+              onClick={() => setLocation("/")}
+              data-testid="button-continue-browsing"
+            >
+              Продолжить просмотр
+            </Button>
+            <Button 
+              className="flex-1" 
+              onClick={() => setLocation("/account")}
+              data-testid="button-view-account"
+            >
+              Личный кабинет
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (

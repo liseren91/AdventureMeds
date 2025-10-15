@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -60,12 +60,14 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const [paymentUrl, setPaymentUrl] = useState("");
 
   useEffect(() => {
-    const stored = localStorage.getItem("payers");
-    if (stored) {
-      const payersData = JSON.parse(stored);
-      setPayers(payersData);
-      if (payersData.length > 0 && !selectedPayerId) {
-        setSelectedPayerId(payersData[0].id);
+    if (open) {
+      const stored = localStorage.getItem("payers");
+      if (stored) {
+        const payersData = JSON.parse(stored);
+        setPayers(payersData);
+        if (payersData.length > 0 && !selectedPayerId) {
+          setSelectedPayerId(payersData[0].id);
+        }
       }
     }
   }, [open]);
@@ -469,9 +471,9 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                 <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center">
                   <CheckCircle2 className="h-12 w-12 text-green-500" />
                 </div>
-                <DialogTitle className="text-2xl">Purchase Successful!</DialogTitle>
-                <DialogDescription className="text-base">
-                  You've successfully subscribed to {service.name} - {selectedTier.name}
+                <DialogTitle className="text-2xl">Спасибо за ваш заказ!</DialogTitle>
+                <DialogDescription className="text-base max-w-md">
+                  Ваш заказ принят и находится в обработке. Вы можете проверить статус заказа в личном кабинете.
                 </DialogDescription>
               </div>
             </DialogHeader>
@@ -481,20 +483,34 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                 <CardContent className="pt-6">
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Service:</span>
+                      <span className="text-muted-foreground">Сервис:</span>
                       <span className="font-medium">{service.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Plan:</span>
+                      <span className="text-muted-foreground">Тариф:</span>
                       <span className="font-medium">{selectedTier.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Billing:</span>
-                      <span className="font-medium capitalize">{billingCycle}</span>
+                      <span className="text-muted-foreground">Период оплаты:</span>
+                      <span className="font-medium capitalize">{billingCycle === "monthly" ? "Ежемесячно" : "Ежегодно"}</span>
                     </div>
                     <div className="flex justify-between pt-3 border-t">
-                      <span className="text-muted-foreground">Total:</span>
+                      <span className="text-muted-foreground">Сумма:</span>
                       <span className="font-bold text-lg">{selectedTier.price}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-blue-500/10 border-blue-500/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <div className="space-y-1">
+                      <h4 className="font-semibold text-blue-500">Срок обработки заказа</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Обработка вашего заказа занимает от 1 до 7 дней. После активации сервиса вы получите уведомление, и сервис отобразится в вашем личном кабинете.
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -502,10 +518,10 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
 
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" className="flex-1" onClick={handleClose} data-testid="button-close-success">
-                  Continue Browsing
+                  Продолжить просмотр
                 </Button>
                 <Button className="flex-1" onClick={handleViewAccount} data-testid="button-view-account">
-                  View My Account
+                  Личный кабинет
                 </Button>
               </div>
             </div>

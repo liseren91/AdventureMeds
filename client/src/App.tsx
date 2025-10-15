@@ -15,6 +15,7 @@ import CostCalculator from "@/pages/CostCalculator";
 import UseCases from "@/pages/UseCases";
 import JobImpact from "@/pages/JobImpact";
 import Account from "@/pages/Account";
+import Finances from "@/pages/Finances";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -37,6 +38,7 @@ function Router() {
         <Route path="/use-cases" component={UseCases} />
         <Route path="/job-impact" component={JobImpact} />
         <Route path="/account" component={Account} />
+        <Route path="/finances" component={Finances} />
         <Route path="/service/:id" component={ServiceDetail} />
         <Route component={NotFound} />
       </Switch>

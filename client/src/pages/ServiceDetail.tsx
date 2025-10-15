@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Heart, GitCompare, ExternalLink, Check } from "lucide-react";
 import { useEffect } from "react";
 import RecommendedServices from "@/components/RecommendedServices";
+import PurchaseDialog from "@/components/PurchaseDialog";
 import { useApp } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/utils";
@@ -139,6 +140,7 @@ export default function ServiceDetail() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
+                    <PurchaseDialog service={service} />
                     <Button
                       variant={isFavorite ? "default" : "outline"}
                       onClick={handleFavoriteToggle}

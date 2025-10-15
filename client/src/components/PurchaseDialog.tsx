@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock, Smartphone, Wallet } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,7 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const setOpen = externalOnOpenChange || setInternalOpen;
   const [selectedPlan, setSelectedPlan] = useState<number>(1); // Default to middle tier
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
-  const [step, setStep] = useState<"select" | "confirm" | "success">("select");
+  const [step, setStep] = useState<"select" | "confirm" | "payment" | "success">("select");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [payers, setPayers] = useState<Payer[]>([]);
@@ -58,6 +58,8 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [paymentUrl, setPaymentUrl] = useState("");
+  const [topUpAmount, setTopUpAmount] = useState<string>("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("card");
 
   useEffect(() => {
     if (open) {
@@ -77,15 +79,36 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const priceValue = parseFloat(tier.price.replace(/[^0-9.]/g, '')) || 0;
   const hasInsufficientFunds = selectedPayer ? selectedPayer.balance < priceValue : true;
 
-  const handlePurchase = () => {
-    if (!selectedPayer || hasInsufficientFunds) {
+  const handleConfirmPurchase = () => {
+    if (!selectedPayer) {
       toast({
-        title: "Insufficient funds",
-        description: "Selected payer doesn't have enough balance",
+        title: "Выберите плательщика",
         variant: "destructive",
       });
       return;
     }
+
+    // If individual payer, go to payment screen
+    if (selectedPayer.type === "individual") {
+      setStep("payment");
+      return;
+    }
+
+    // For company payers, check funds and complete purchase
+    if (hasInsufficientFunds) {
+      toast({
+        title: "Недостаточно средств",
+        description: "У выбранного плательщика недостаточно средств",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    completePurchase();
+  };
+
+  const completePurchase = () => {
+    if (!selectedPayer) return;
 
     const purchase = {
       id: Date.now().toString(),
@@ -399,7 +422,7 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                                   <User className="h-4 w-4" />
                                 )}
                                 <span>
-                                  {payer.type === "company" ? payer.companyName : `${payer.firstName} ${payer.lastName}`}
+                                  {payer.type === "company" ? payer.companyName : `${payer.lastName} ${payer.firstName}`}
                                 </span>
                               </div>
                             </SelectItem>
@@ -453,11 +476,176 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                   Back
                 </Button>
                 <Button 
-                  onClick={handlePurchase} 
-                  disabled={hasInsufficientFunds || !selectedPayer}
+                  onClick={handleConfirmPurchase} 
+                  disabled={!selectedPayer}
                   data-testid="button-confirm-purchase"
                 >
                   Confirm Purchase
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === "payment" && selectedPayer && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Пополнить счет</DialogTitle>
+              <DialogDescription>
+                Выберите способ пополнения баланса для оплаты
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 mt-6">
+              {/* Payer Info */}
+              <Card className="bg-blue-500/5 border-blue-500/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                      <User className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">
+                        {selectedPayer.type === "individual" 
+                          ? `${selectedPayer.lastName} ${selectedPayer.firstName}`
+                          : selectedPayer.companyName
+                        }
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedPayer.type === "individual" ? "Физическое лицо" : "Юридическое лицо"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Текущий баланс:</span>
+                      <span className="font-semibold">{selectedPayer.balance.toFixed(2)} ₽</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top-up Amount */}
+              <Card>
+                <CardHeader>
+                  <h3 className="font-semibold">Пополнить счет на:</h3>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Input
+                    type="number"
+                    placeholder="2000"
+                    value={topUpAmount}
+                    onChange={(e) => setTopUpAmount(e.target.value)}
+                    className="text-lg"
+                    data-testid="input-topup-amount"
+                  />
+                  
+                  <div className="text-sm text-muted-foreground">Быстрый выбор суммы:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {[500, 1000, 2000, 5000, 10000].map((amount) => (
+                      <Button
+                        key={amount}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setTopUpAmount(amount.toString())}
+                        data-testid={`button-amount-${amount}`}
+                      >
+                        {amount} ₽
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Payment Methods */}
+              <Card>
+                <CardHeader>
+                  <h3 className="font-semibold">Выберите способ оплаты</h3>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedPaymentMethod === "card" ? "border-primary bg-primary/5" : "hover-elevate"
+                    }`}
+                    onClick={() => setSelectedPaymentMethod("card")}
+                    data-testid="payment-method-card"
+                  >
+                    <div className="flex items-center gap-3">
+                      <CreditCard className="h-5 w-5 text-primary" />
+                      <div>
+                        <h4 className="font-medium">Банковские карты</h4>
+                        <p className="text-sm text-muted-foreground">Mir, Visa, Mastercard</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedPaymentMethod === "yumoney" ? "border-primary bg-primary/5" : "hover-elevate"
+                    }`}
+                    onClick={() => setSelectedPaymentMethod("yumoney")}
+                    data-testid="payment-method-yumoney"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Wallet className="h-5 w-5 text-primary" />
+                      <div>
+                        <h4 className="font-medium">ЮMoney</h4>
+                        <p className="text-sm text-muted-foreground">Электронный кошелек</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedPaymentMethod === "sbp" ? "border-primary bg-primary/5" : "hover-elevate"
+                    }`}
+                    onClick={() => setSelectedPaymentMethod("sbp")}
+                    data-testid="payment-method-sbp"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Smartphone className="h-5 w-5 text-primary" />
+                      <div>
+                        <h4 className="font-medium">СБП (Система быстрых платежей)</h4>
+                        <p className="text-sm text-muted-foreground">Перевод по номеру телефона</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedPaymentMethod === "sberpay" ? "border-primary bg-primary/5" : "hover-elevate"
+                    }`}
+                    onClick={() => setSelectedPaymentMethod("sberpay")}
+                    data-testid="payment-method-sberpay"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Building2 className="h-5 w-5 text-primary" />
+                      <div>
+                        <h4 className="font-medium">SberPay</h4>
+                        <p className="text-sm text-muted-foreground">Оплата через Сбербанк</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <div className="space-y-3 pt-4 border-t">
+                <Button
+                  className="w-full"
+                  onClick={completePurchase}
+                  disabled={hasInsufficientFunds}
+                  data-testid="button-pay-from-balance"
+                >
+                  Списать с баланса
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setStep("confirm")}
+                  data-testid="button-back-to-confirm"
+                >
+                  Назад
                 </Button>
               </div>
             </div>

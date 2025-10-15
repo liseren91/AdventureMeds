@@ -36,18 +36,36 @@ export default function AddPayerDialog({ onPayerAdded }: AddPayerDialogProps) {
       return;
     }
 
-    const newPayer: Payer = {
-      id: `payer-${Date.now()}`,
-      type,
-      name: name.trim(),
-      balance: parseFloat(balance) || 0,
-      services: [],
-    };
+    let newPayer: Payer;
+    
+    if (type === "company") {
+      newPayer = {
+        id: `payer-${Date.now()}`,
+        type: "company",
+        companyName: name.trim(),
+        balance: parseFloat(balance) || 0,
+        services: [],
+      };
+    } else {
+      // Split full name into first and last name
+      const nameParts = name.trim().split(" ");
+      const lastName = nameParts[0] || "";
+      const firstName = nameParts.slice(1).join(" ") || "";
+      
+      newPayer = {
+        id: `payer-${Date.now()}`,
+        type: "individual",
+        firstName,
+        lastName,
+        balance: parseFloat(balance) || 0,
+        services: [],
+      };
+    }
 
     onPayerAdded(newPayer);
     toast({
       title: "Плательщик добавлен",
-      description: `${newPayer.name} успешно создан`,
+      description: `${name.trim()} успешно создан`,
     });
 
     setOpen(false);

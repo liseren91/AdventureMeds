@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Plus } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Plus, HelpCircle } from "lucide-react";
 import { type Payer } from "@/lib/payersData";
 import { useToast } from "@/hooks/use-toast";
 
@@ -86,21 +87,43 @@ export default function AddPayerDialog({ onPayerAdded }: AddPayerDialogProps) {
         <DialogHeader>
           <DialogTitle>Добавить плательщика</DialogTitle>
           <DialogDescription>
-            Создайте нового плательщика для управления подписками
+            Плательщик — это источник средств для оплаты AI-сервисов. Вы можете создать несколько плательщиков для разных целей (личное использование, бизнес-проекты).
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Тип плательщика</Label>
+            <div className="flex items-center gap-2">
+              <Label>Тип плательщика</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">
+                      <strong>Юрлицо:</strong> для бизнеса, с возможностью оплаты по счёту и управлением корпоративным балансом.
+                      <br/><br/>
+                      <strong>Физлицо:</strong> для личного использования с оплатой картой.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <RadioGroup value={type} onValueChange={(v) => setType(v as "company" | "individual")}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="company" id="company" />
-                <Label htmlFor="company">Юридическое лицо</Label>
+                <Label htmlFor="company" className="font-normal">
+                  Юридическое лицо
+                  <span className="text-xs text-muted-foreground ml-2">(для бизнеса, оплата по счёту)</span>
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="individual" id="individual" />
-                <Label htmlFor="individual">Физическое лицо</Label>
+                <Label htmlFor="individual" className="font-normal">
+                  Физическое лицо
+                  <span className="text-xs text-muted-foreground ml-2">(для себя, оплата картой)</span>
+                </Label>
               </div>
             </RadioGroup>
           </div>

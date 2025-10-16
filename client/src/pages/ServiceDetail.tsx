@@ -77,7 +77,7 @@ export default function ServiceDetail() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+                <Link href="/" data-testid="link-breadcrumb-home">Главная</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

@@ -25,61 +25,61 @@ interface UseCase {
 //todo: remove mock functionality - get from API
 const USE_CASES: UseCase[] = [
   {
-    industry: "Marketing",
-    title: "Content Marketing Team",
-    description: "A digital marketing agency uses AI tools to streamline content creation, social media management, and campaign optimization.",
+    industry: "Маркетинг",
+    title: "Команда контент-маркетинга",
+    description: "Агентство цифрового маркетинга использует AI-инструменты для создания контента, управления соцсетями и оптимизации кампаний.",
     tools: ["Jasper AI", "Canva AI", "Copy.ai", "Buffer AI"],
     icon: <Building2 className="h-6 w-6" />,
     benefits: [
-      "50% faster content creation",
-      "Consistent brand voice across platforms",
-      "Data-driven content strategy",
-      "Reduced design costs"
+      "На 50% быстрее создание контента",
+      "Единый голос бренда на всех платформах",
+      "Контент-стратегия на основе данных",
+      "Снижение затрат на дизайн"
     ]
   },
   {
     industry: "E-commerce",
-    title: "Online Retail Store",
-    description: "An e-commerce business leverages AI to create product descriptions, marketing materials, and customer support content.",
+    title: "Интернет-магазин",
+    description: "Онлайн-бизнес использует AI для создания описаний товаров, маркетинговых материалов и контента для поддержки клиентов.",
     tools: ["Copy.ai", "ChatGPT Plus", "Grammarly", "Canva AI"],
     icon: <ShoppingCart className="h-6 w-6" />,
     benefits: [
-      "Automated product descriptions",
-      "Improved SEO performance",
-      "Higher conversion rates",
-      "24/7 customer support content"
+      "Автоматические описания товаров",
+      "Улучшенное SEO",
+      "Выше конверсия в продажу",
+      "Контент для поддержки 24/7"
     ]
   },
   {
-    industry: "Tech Startup",
-    title: "SaaS Company",
-    description: "A software startup uses AI tools for documentation, blog posts, social media, and customer communications.",
+    industry: "Технологии",
+    title: "SaaS компания",
+    description: "Технологический стартап использует AI для документации, статей в блог, соцсетей и коммуникации с клиентами.",
     tools: ["ChatGPT Plus", "Jasper AI", "Grammarly", "Buffer AI"],
     icon: <Briefcase className="h-6 w-6" />,
     benefits: [
-      "Professional documentation",
-      "Consistent messaging",
-      "Faster time to market",
-      "Better user engagement"
+      "Профессиональная документация",
+      "Последовательная коммуникация",
+      "Быстрый выход на рынок",
+      "Лучшее вовлечение пользователей"
     ]
   },
   {
-    industry: "Professional Services",
-    title: "Consulting Firm",
-    description: "A consulting firm utilizes AI for proposal writing, client presentations, and research synthesis.",
+    industry: "Консалтинг",
+    title: "Консалтинговая компания",
+    description: "Консалтинговая фирма использует AI для написания предложений, презентаций клиентам и синтеза исследований.",
     tools: ["ChatGPT Plus", "Grammarly", "Canva AI", "Jasper AI"],
     icon: <Users className="h-6 w-6" />,
     benefits: [
-      "Winning proposals faster",
-      "Professional presentations",
-      "Better client insights",
-      "Competitive advantage"
+      "Быстрее побеждающие предложения",
+      "Профессиональные презентации",
+      "Лучшее понимание клиентов",
+      "Конкурентное преимущество"
     ]
   }
 ];
 
 export default function UseCases() {
-  const [selectedIndustry, setSelectedIndustry] = useState("Marketing");
+  const [selectedIndustry, setSelectedIndustry] = useState("Маркетинг");
 
   const currentUseCase = USE_CASES.find(uc => uc.industry === selectedIndustry);
 
@@ -90,22 +90,22 @@ export default function UseCases() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/" data-testid="link-breadcrumb-home">Home</Link>
+                <Link href="/" data-testid="link-breadcrumb-home">Главная</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage data-testid="text-breadcrumb-usecases">Use Cases</BreadcrumbPage>
+              <BreadcrumbPage data-testid="text-breadcrumb-usecases">Примеры использования</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         <div>
           <h1 className="text-4xl font-bold tracking-tight" data-testid="text-usecases-title">
-            Use Cases by Industry
+            Примеры использования по отраслям
           </h1>
           <p className="text-muted-foreground mt-2">
-            See how different industries leverage AI tools for success
+            Узнайте, как разные отрасли используют AI-инструменты для успеха
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export default function UseCases() {
 
                   <Card>
                     <CardHeader>
-                      <h3 className="text-xl font-semibold">Key Benefits</h3>
+                      <h3 className="text-xl font-semibold">Ключевые преимущества</h3>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-3">
@@ -164,7 +164,7 @@ export default function UseCases() {
                 <div className="lg:col-span-1">
                   <Card className="sticky top-24">
                     <CardHeader>
-                      <h3 className="text-xl font-semibold">Recommended Tools</h3>
+                      <h3 className="text-xl font-semibold">Рекомендуемые инструменты</h3>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {useCase.tools.map((tool, index) => (
@@ -178,10 +178,10 @@ export default function UseCases() {
                       
                       <div className="pt-4 border-t border-border">
                         <p className="text-sm text-muted-foreground mb-3">
-                          This stack provides a complete solution for {useCase.industry.toLowerCase()}
+                          Этот набор инструментов — полное решение для отрасли "{useCase.industry}"
                         </p>
                         <Badge className="w-full justify-center py-2">
-                          {useCase.tools.length} Tools
+                          {useCase.tools.length} инструментов
                         </Badge>
                       </div>
                     </CardContent>

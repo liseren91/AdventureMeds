@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User, Wallet, ShoppingCart } from "lucide-react";
+import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User, Wallet, ShoppingCart, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,7 +37,7 @@ export default function Navbar({
             >
               <Link href="/">
                 <Home className="h-4 w-4" />
-                Home
+                Главная
               </Link>
             </Button>
 
@@ -49,7 +49,7 @@ export default function Navbar({
             >
               <Link href="/favorites">
                 <Heart className="h-4 w-4" />
-                Favorites
+                Избранное
                 {favoritesCount > 0 && (
                   <Badge variant="secondary" className="ml-1">
                     {favoritesCount}
@@ -66,7 +66,7 @@ export default function Navbar({
             >
               <Link href="/compare">
                 <GitCompare className="h-4 w-4" />
-                Compare
+                Сравнение
                 {comparingCount > 0 && (
                   <Badge variant="secondary" className="ml-1">
                     {comparingCount}
@@ -83,7 +83,7 @@ export default function Navbar({
             >
               <Link href="/history">
                 <History className="h-4 w-4" />
-                History
+                История
               </Link>
             </Button>
 
@@ -95,7 +95,7 @@ export default function Navbar({
             >
               <Link href="/notifications">
                 <Bell className="h-4 w-4" />
-                Notifications
+                Уведомления
                 {notificationsCount > 0 && (
                   <Badge variant="destructive" className="ml-1">
                     {notificationsCount}
@@ -112,7 +112,7 @@ export default function Navbar({
             >
               <Link href="/calculator">
                 <Calculator className="h-4 w-4" />
-                Calculator
+                Калькулятор
               </Link>
             </Button>
 
@@ -124,7 +124,7 @@ export default function Navbar({
             >
               <Link href="/use-cases">
                 <Briefcase className="h-4 w-4" />
-                Use Cases
+                Примеры
               </Link>
             </Button>
 
@@ -136,7 +136,19 @@ export default function Navbar({
             >
               <Link href="/job-impact">
                 <TrendingUp className="h-4 w-4" />
-                Job Impact
+                Профессии
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/help") ? "secondary" : "ghost"}
+              className="gap-2"
+              data-testid="button-nav-help"
+            >
+              <Link href="/help">
+                <HelpCircle className="h-4 w-4" />
+                Помощь
               </Link>
             </Button>
 
@@ -148,7 +160,7 @@ export default function Navbar({
             >
               <Link href="/finances">
                 <Wallet className="h-4 w-4" />
-                Finances
+                Финансы
               </Link>
             </Button>
 
@@ -160,7 +172,7 @@ export default function Navbar({
             >
               <Link href="/cart">
                 <ShoppingCart className="h-4 w-4" />
-                Cart
+                Корзина
                 {cartCount > 0 && (
                   <Badge variant="secondary" className="ml-1">
                     {cartCount}
@@ -177,7 +189,7 @@ export default function Navbar({
             >
               <Link href="/account">
                 <User className="h-4 w-4" />
-                Account
+                Аккаунт
               </Link>
             </Button>
           </div>

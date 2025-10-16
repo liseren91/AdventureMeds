@@ -10,10 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock, Smartphone, Wallet, FileText, Download } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle2, CreditCard, Building2, User, AlertTriangle, Info, Clock, Smartphone, Wallet, FileText, Download, HelpCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { Payer, Transaction } from "@/lib/payersData";
@@ -430,6 +431,18 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
                     <h3 className="font-semibold">Плательщик</h3>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            Выберите источник оплаты — юрлицо для бизнеса (с оплатой по счёту) или физлицо для личных нужд.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">

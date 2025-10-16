@@ -17,6 +17,7 @@ import JobImpact from "@/pages/JobImpact";
 import Account from "@/pages/Account";
 import Finances from "@/pages/Finances";
 import Cart from "@/pages/Cart";
+import Help from "@/pages/Help";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 import { getCartFromStorage } from "@/lib/cartData";
@@ -58,6 +59,7 @@ function Router() {
         <Route path="/calculator" component={CostCalculator} />
         <Route path="/use-cases" component={UseCases} />
         <Route path="/job-impact" component={JobImpact} />
+        <Route path="/help" component={Help} />
         <Route path="/account" component={Account} />
         <Route path="/finances" component={Finances} />
         <Route path="/cart" component={Cart} />

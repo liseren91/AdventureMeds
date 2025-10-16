@@ -38,6 +38,8 @@ The application uses PostgreSQL via Neon serverless driver and Drizzle ORM for t
 - **Finances/Payer Management**: A multi-entity payer system (companies/individuals) with payer creation, balance management (top-up/withdraw), service tracking per payer, and a complete transaction history.
 - **User Engagement**: Favorites, service comparison (up to 4 services), viewing history, notification system, and cost calculator.
 - **UI/UX**: Consistent card-based layouts, badge variants, icon-driven navigation, and breadcrumb navigation across all pages. Dark mode is default with HSL-based color system.
+- **Localization**: Full Russian localization for navigation, pages, forms, and all UI elements. All user-facing content is in Russian for better accessibility.
+- **Help & Onboarding**: Contextual tooltips explain complex concepts (payers, payment methods) inline. Comprehensive Help/FAQ page at `/help` covers platform basics, payment system, glossary, and beginner guidance.
 
 ## External Dependencies
 

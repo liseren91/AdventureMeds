@@ -237,10 +237,10 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                     </span>
                   </div>
                 )}
-                <DialogTitle className="text-2xl">Subscribe to {service.name}</DialogTitle>
+                <DialogTitle className="text-2xl">Подписка на {service.name}</DialogTitle>
               </div>
               <DialogDescription>
-                Choose your plan and billing cycle to get started
+                Выберите тарифный план и период оплаты
               </DialogDescription>
             </DialogHeader>
 
@@ -252,7 +252,7 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                   onClick={() => setBillingCycle("monthly")}
                   data-testid="button-billing-monthly"
                 >
-                  Monthly
+                  Ежемесячно
                 </Button>
                 <Button
                   variant={billingCycle === "yearly" ? "default" : "ghost"}
@@ -260,8 +260,8 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                   onClick={() => setBillingCycle("yearly")}
                   data-testid="button-billing-yearly"
                 >
-                  Yearly
-                  <Badge variant="secondary" className="ml-2">Save 20%</Badge>
+                  Ежегодно
+                  <Badge variant="secondary" className="ml-2">Скидка 20%</Badge>
                 </Button>
               </div>
 
@@ -308,10 +308,10 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button variant="outline" onClick={handleClose} data-testid="button-cancel-purchase">
-                  Cancel
+                  Отменить
                 </Button>
                 <Button onClick={() => setStep("confirm")} data-testid="button-continue-purchase">
-                  Continue
+                  Продолжить
                 </Button>
               </div>
             </div>
@@ -321,9 +321,9 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
         {step === "confirm" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl">Confirm Your Purchase</DialogTitle>
+              <DialogTitle className="text-2xl">Подтверждение покупки</DialogTitle>
               <DialogDescription>
-                Review your subscription details before confirming
+                Проверьте детали подписки перед подтверждением
               </DialogDescription>
             </DialogHeader>
 
@@ -508,14 +508,14 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button variant="outline" onClick={() => setStep("select")} data-testid="button-back-purchase">
-                  Back
+                  Назад
                 </Button>
                 <Button 
                   onClick={handleConfirmPurchase} 
                   disabled={!selectedPayer}
                   data-testid="button-confirm-purchase"
                 >
-                  Confirm Purchase
+                  Подтвердить покупку
                 </Button>
               </div>
             </div>

@@ -472,14 +472,25 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                           </div>
                           
                           {hasInsufficientFunds && (
-                            <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md mt-3">
-                              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                              <div>
-                                <p className="text-sm font-medium text-destructive">Недостаточно средств</p>
-                                <p className="text-xs text-destructive/80 mt-1">
-                                  Пополните баланс плательщика на {(priceValue - selectedPayer.balance).toLocaleString('ru-RU')} ₽ или выберите другого плательщика
-                                </p>
+                            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md mt-3 space-y-3">
+                              <div className="flex items-start gap-2">
+                                <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-sm font-medium text-destructive">Недостаточно средств</p>
+                                  <p className="text-xs text-destructive/80 mt-1">
+                                    Пополните баланс плательщика на {(priceValue - selectedPayer.balance).toLocaleString('ru-RU')} ₽
+                                  </p>
+                                </div>
                               </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => window.location.href = `/finances?payerId=${selectedPayerId}`}
+                                data-testid="button-topup-balance"
+                              >
+                                Пополнить баланс
+                              </Button>
                             </div>
                           )}
                         </div>

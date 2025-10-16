@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import {
@@ -41,6 +42,7 @@ export default function Cart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [payers, setPayers] = useState<Payer[]>([]);
   const [selectedPayerId, setSelectedPayerId] = useState<string>("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"balance" | "card" | "invoice">("balance");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [showSuccess, setShowSuccess] = useState(false);
   const [purchasedItemsCount, setPurchasedItemsCount] = useState(0);
@@ -98,9 +100,42 @@ export default function Cart() {
     setCartItems(getCartFromStorage());
   };
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+  // Convert each item price from USD to RUB and calculate total
+  const totalPrice = cartItems.reduce((sum, item) => {
+    // item.price is in USD (e.g., 99), convert to RUB
+    const priceInRub = getPriceInRub(`$${item.price}`);
+    return sum + priceInRub;
+  }, 0);
   const selectedPayer = payers.find(p => p.id === selectedPayerId);
-  const hasInsufficientFunds = selectedPayer ? selectedPayer.balance < totalPrice : true;
+  // Only check balance if paying with balance, not for invoice payments
+  const hasInsufficientFunds = selectedPaymentMethod === "balance" && selectedPayer 
+    ? selectedPayer.balance < totalPrice 
+    : false;
+
+  const generateInvoice = () => {
+    if (!selectedPayer || selectedPayer.type !== "company") return "";
+    
+    const invoiceData = `
+СЧЕТ НА ОПЛАТУ №${Date.now()}
+От: ${new Date().toLocaleDateString('ru-RU')}
+
+Плательщик:
+${selectedPayer.companyName}
+ИНН: ${selectedPayer.inn}
+КПП: ${selectedPayer.kpp}
+
+К оплате:
+${cartItems.map(item => `${item.serviceName} - ${item.planName}: ${getPriceInRub(`$${item.price}`).toLocaleString('ru-RU')} ₽`).join('\n')}
+
+Итого к оплате: ${totalPrice.toLocaleString('ru-RU')} ₽
+
+Срок оплаты: ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU')}
+    `.trim();
+
+    const blob = new Blob([invoiceData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    return url;
+  };
 
   const handleCheckout = () => {
     if (!selectedPayer) {
@@ -125,20 +160,33 @@ export default function Cart() {
     setPurchasedItemsCount(cartItems.length);
     setPurchasedTotal(totalPrice);
 
+    // Generate invoice if payment method is invoice
+    let invoiceUrl = "";
+    let purchaseStatus: "active" | "pending_payment" = "active";
+    
+    if (selectedPaymentMethod === "invoice") {
+      invoiceUrl = generateInvoice();
+      purchaseStatus = "pending_payment";
+    }
+
     // Process all purchases
-    cartItems.forEach(item => {
+    cartItems.forEach((item, index) => {
+      const itemPrice = getPriceInRub(`$${item.price}`);
+      
       const purchase = {
-        id: Date.now().toString() + Math.random(),
+        id: Date.now().toString() + Math.random() + index,
         serviceId: item.serviceId,
         planName: item.planName,
-        price: item.price,
+        price: itemPrice,
         purchaseDate: new Date().toISOString(),
-        status: "active" as const,
+        status: purchaseStatus,
         billingCycle: item.billingCycle,
         payerId: selectedPayerId,
         login: item.login,
         password: item.password,
         paymentUrl: item.paymentUrl,
+        paymentMethod: selectedPaymentMethod,
+        invoiceUrl: invoiceUrl || undefined,
       };
 
       const existing = localStorage.getItem("userPurchases");
@@ -148,11 +196,11 @@ export default function Cart() {
 
       // Add transaction
       const newTransaction: Transaction = {
-        id: Date.now().toString() + Math.random(),
+        id: Date.now().toString() + Math.random() + index,
         payerId: selectedPayerId,
         date: new Date().toISOString(),
         type: "purchase",
-        amount: item.price,
+        amount: itemPrice,
         comment: `Покупка ${item.serviceName} - ${item.planName}`,
         serviceId: item.serviceId,
         serviceName: item.serviceName,
@@ -163,12 +211,24 @@ export default function Cart() {
       localStorage.setItem("transactions", JSON.stringify(transactions));
     });
 
-    // Deduct total from payer balance
-    const updatedPayers = payers.map(p => 
-      p.id === selectedPayerId ? { ...p, balance: p.balance - totalPrice } : p
-    );
-    setPayers(updatedPayers);
-    localStorage.setItem("payers", JSON.stringify(updatedPayers));
+    // Deduct total from payer balance (only if not paying by invoice)
+    if (selectedPaymentMethod !== "invoice") {
+      const updatedPayers = payers.map(p => 
+        p.id === selectedPayerId ? { ...p, balance: p.balance - totalPrice } : p
+      );
+      setPayers(updatedPayers);
+      localStorage.setItem("payers", JSON.stringify(updatedPayers));
+    }
+    
+    // Download invoice if payment method is invoice
+    if (selectedPaymentMethod === "invoice" && invoiceUrl) {
+      const link = document.createElement('a');
+      link.href = invoiceUrl;
+      link.download = `invoice_${Date.now()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
 
     // Clear cart
     clearCart();
@@ -214,7 +274,7 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between pt-3 border-t">
                   <span className="text-muted-foreground">Общая сумма:</span>
-                  <span className="font-bold text-lg">${purchasedTotal.toFixed(2)}</span>
+                  <span className="font-bold text-lg">{purchasedTotal.toLocaleString('ru-RU')} ₽</span>
                 </div>
               </div>
             </CardContent>
@@ -362,9 +422,14 @@ export default function Cart() {
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end gap-3">
-                      <p className="text-2xl font-bold" data-testid={`text-price-${item.id}`}>
-                        ${item.price.toFixed(2)}
-                      </p>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold" data-testid={`text-price-${item.id}`}>
+                          {getPriceInRub(`$${item.price}`).toLocaleString('ru-RU')} ₽
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          ${item.price.toFixed(2)}
+                        </p>
+                      </div>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
@@ -456,7 +521,7 @@ export default function Cart() {
                 <div className="flex justify-between pt-3 border-t">
                   <span className="font-semibold">Итого:</span>
                   <span className="text-2xl font-bold" data-testid="text-total-price">
-                    ${totalPrice.toFixed(2)}
+                    {totalPrice.toLocaleString('ru-RU')} ₽
                   </span>
                 </div>
               </div>
@@ -488,30 +553,63 @@ export default function Cart() {
                     </Select>
                     
                     {selectedPayer && (
-                      <div className="p-4 border border-border rounded-md space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Баланс:</span>
-                          <span className="font-semibold">${selectedPayer.balance.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <span className="text-sm text-muted-foreground">После оплаты:</span>
-                          <span className={`font-semibold ${hasInsufficientFunds ? 'text-destructive' : 'text-green-500'}`}>
-                            ${(selectedPayer.balance - totalPrice).toFixed(2)}
-                          </span>
-                        </div>
-                        
-                        {hasInsufficientFunds && (
-                          <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md mt-3">
-                            <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                            <div>
-                              <p className="text-sm font-medium text-destructive">Недостаточно средств</p>
-                              <p className="text-xs text-destructive/80 mt-1">
-                                Не хватает ${(totalPrice - selectedPayer.balance).toFixed(2)}
-                              </p>
-                            </div>
+                      <>
+                        {/* Payment method selection for companies */}
+                        {selectedPayer.type === "company" && (
+                          <div className="space-y-3">
+                            <label className="text-sm font-medium">Способ оплаты</label>
+                            <RadioGroup value={selectedPaymentMethod} onValueChange={(v) => setSelectedPaymentMethod(v as "balance" | "card" | "invoice")}>
+                              <div className="space-y-2">
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="balance" id="payment-balance" />
+                                  <Label htmlFor="payment-balance" className="cursor-pointer">
+                                    Списать с баланса
+                                  </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="card" id="payment-card" />
+                                  <Label htmlFor="payment-card" className="cursor-pointer">
+                                    Корпоративная карта
+                                  </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="invoice" id="payment-invoice" />
+                                  <Label htmlFor="payment-invoice" className="cursor-pointer">
+                                    Оплата по счету
+                                  </Label>
+                                </div>
+                              </div>
+                            </RadioGroup>
                           </div>
                         )}
-                      </div>
+
+                        <div className="p-4 border border-border rounded-md space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Баланс:</span>
+                            <span className="font-semibold">{selectedPayer.balance.toLocaleString('ru-RU')} ₽</span>
+                          </div>
+                          {selectedPaymentMethod !== "invoice" && (
+                            <div className="flex items-center justify-between pt-2 border-t">
+                              <span className="text-sm text-muted-foreground">После оплаты:</span>
+                              <span className={`font-semibold ${hasInsufficientFunds ? 'text-destructive' : 'text-green-500'}`}>
+                                {(selectedPayer.balance - totalPrice).toLocaleString('ru-RU')} ₽
+                              </span>
+                            </div>
+                          )}
+                          
+                          {hasInsufficientFunds && (
+                            <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md mt-3">
+                              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                              <div>
+                                <p className="text-sm font-medium text-destructive">Недостаточно средств</p>
+                                <p className="text-xs text-destructive/80 mt-1">
+                                  Не хватает {(totalPrice - selectedPayer.balance).toLocaleString('ru-RU')} ₽
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </>
                     )}
                   </>
                 ) : (
@@ -531,7 +629,7 @@ export default function Cart() {
                 data-testid="button-checkout"
               >
                 <ShoppingBag className="h-5 w-5" />
-                Оплатить ${totalPrice.toFixed(2)}
+                Оплатить {totalPrice.toLocaleString('ru-RU')} ₽
               </Button>
             </CardContent>
           </Card>

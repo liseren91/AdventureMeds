@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { Payer, Transaction } from "@/lib/payersData";
+import { getPriceInRub, formatPriceWithRub } from "@/lib/currency";
 import {
   Select,
   SelectContent,
@@ -76,7 +77,7 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
 
   const selectedPayer = payers.find(p => p.id === selectedPayerId);
   const tier = service.pricingTiers[selectedPlan];
-  const priceValue = parseFloat(tier.price.replace(/[^0-9.]/g, '')) || 0;
+  const priceValue = getPriceInRub(tier.price); // Convert USD to RUB with 5% commission
   const hasInsufficientFunds = selectedPayer ? selectedPayer.balance < priceValue : true;
 
   const handleConfirmPurchase = () => {
@@ -280,10 +281,15 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                           <h3 className="font-semibold text-lg">{tier.name}</h3>
                           <RadioGroupItem value={index.toString()} id={`plan-${index}`} />
                         </div>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold">{tier.price}</span>
-                          <span className="text-muted-foreground text-sm">
-                            /{billingCycle === "monthly" ? "mo" : "yr"}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-3xl font-bold">{tier.price}</span>
+                            <span className="text-muted-foreground text-sm">
+                              /{billingCycle === "monthly" ? "mo" : "yr"}
+                            </span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            ≈{getPriceInRub(tier.price).toLocaleString('ru-RU')} ₽
                           </span>
                         </div>
                       </CardHeader>
@@ -452,16 +458,16 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                         <div className="p-4 border border-border rounded-md space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Текущий баланс:</span>
-                            <span className="font-semibold">${selectedPayer.balance.toFixed(2)}</span>
+                            <span className="font-semibold">{selectedPayer.balance.toLocaleString('ru-RU')} ₽</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Стоимость:</span>
-                            <span className="font-semibold">${priceValue.toFixed(2)}</span>
+                            <span className="font-semibold">{priceValue.toLocaleString('ru-RU')} ₽</span>
                           </div>
                           <div className="flex items-center justify-between pt-2 border-t">
                             <span className="text-sm text-muted-foreground">Остаток после покупки:</span>
                             <span className={`font-semibold ${hasInsufficientFunds ? 'text-destructive' : ''}`}>
-                              ${(selectedPayer.balance - priceValue).toFixed(2)}
+                              {(selectedPayer.balance - priceValue).toLocaleString('ru-RU')} ₽
                             </span>
                           </div>
                           
@@ -471,7 +477,7 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                               <div>
                                 <p className="text-sm font-medium text-destructive">Недостаточно средств</p>
                                 <p className="text-xs text-destructive/80 mt-1">
-                                  Пополните баланс плательщика на ${(priceValue - selectedPayer.balance).toFixed(2)} или выберите другого плательщика
+                                  Пополните баланс плательщика на {(priceValue - selectedPayer.balance).toLocaleString('ru-RU')} ₽ или выберите другого плательщика
                                 </p>
                               </div>
                             </div>

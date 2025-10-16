@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Heart, GitCompare, ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { formatPriceWithRub } from "@/lib/currency";
 import { useState } from "react";
 import { MOCK_SERVICES } from "@/lib/mockData";
 import { addToCart } from "@/lib/cartData";
@@ -121,8 +122,8 @@ export default function ServiceCard({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>
-              {formatPrice(price)}
+            <Badge variant="secondary" className="text-xs whitespace-nowrap" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>
+              {formatPriceWithRub(price)}
             </Badge>
             <Button
               size="icon"

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { CartItem, getCartFromStorage, removeFromCart, clearCart, updateCartItemCredentials } from "@/lib/cartData";
 import { Payer, Transaction } from "@/lib/payersData";
+import { getPriceInRub } from "@/lib/currency";
 import {
   Select,
   SelectContent,

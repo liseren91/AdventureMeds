@@ -78,7 +78,10 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
   const selectedPayer = payers.find(p => p.id === selectedPayerId);
   const tier = service.pricingTiers[selectedPlan];
   const priceValue = getPriceInRub(tier.price); // Convert USD to RUB with 5% commission
-  const hasInsufficientFunds = selectedPayer ? selectedPayer.balance < priceValue : true;
+  // Only check balance if not paying by invoice
+  const hasInsufficientFunds = selectedPaymentMethod !== "invoice" && selectedPayer 
+    ? selectedPayer.balance < priceValue 
+    : selectedPaymentMethod === "invoice" ? false : true;
 
   const handleConfirmPurchase = () => {
     if (!selectedPayer) {
@@ -454,7 +457,37 @@ export default function PurchaseDialog({ service, open: externalOpen, onOpenChan
                         </SelectContent>
                       </Select>
                       
-                      {selectedPayer && (
+                      {/* Payment method selection for companies */}
+                      {selectedPayer && selectedPayer.type === "company" && (
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium">Способ оплаты</label>
+                          <RadioGroup value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
+                            <div className="space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="balance" id="payment-balance-confirm" />
+                                <Label htmlFor="payment-balance-confirm" className="cursor-pointer">
+                                  Списать с баланса
+                                </Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="card" id="payment-card-confirm" />
+                                <Label htmlFor="payment-card-confirm" className="cursor-pointer">
+                                  Корпоративная карта
+                                </Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="invoice" id="payment-invoice-confirm" />
+                                <Label htmlFor="payment-invoice-confirm" className="cursor-pointer">
+                                  Оплата по счету
+                                </Label>
+                              </div>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                      )}
+                      
+                      {/* Only show balance info when NOT paying by invoice */}
+                      {selectedPayer && selectedPaymentMethod !== "invoice" && (
                         <div className="p-4 border border-border rounded-md space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Текущий баланс:</span>

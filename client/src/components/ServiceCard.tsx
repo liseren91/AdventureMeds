@@ -46,6 +46,27 @@ export default function ServiceCard({
   const [comparing, setComparing] = useState(isComparing);
   const { toast } = useToast();
 
+  // Get pricing info from service data
+  const service = MOCK_SERVICES.find(s => s.id === id);
+  const getPriceDisplay = () => {
+    if (!service || !service.pricingTiers) return formatPriceWithRub(price);
+    
+    // Find minimum paid price from pricing tiers
+    const paidTiers = service.pricingTiers
+      .map(tier => {
+        const match = tier.price.match(/\$(\d+(?:\.\d+)?)/);
+        return match ? parseFloat(match[1]) : 0;
+      })
+      .filter(p => p > 0);
+    
+    if (paidTiers.length === 0) {
+      return "Freemium"; // All tiers are free
+    }
+    
+    const minPrice = Math.min(...paidTiers);
+    return formatPriceWithRub(`$${minPrice}`);
+  };
+
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -123,7 +144,7 @@ export default function ServiceCard({
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs whitespace-nowrap" data-testid={`badge-price-${name.toLowerCase().replace(/\s+/g, '-')}`}>
-              {formatPriceWithRub(price)}
+              {getPriceDisplay()}
             </Badge>
             <Button
               size="icon"

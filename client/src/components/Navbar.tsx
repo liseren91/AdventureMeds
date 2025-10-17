@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User, Wallet, ShoppingCart, HelpCircle } from "lucide-react";
+import { Heart, Home, GitCompare, History, Bell, Calculator, Briefcase, TrendingUp, User, Wallet, ShoppingCart, HelpCircle, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 interface NavbarProps {
   favoritesCount?: number;
@@ -23,28 +24,30 @@ export default function Navbar({
   return (
     <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
+        {/* Первый ряд - основные элементы */}
         <div className="flex items-center justify-between h-16">
+          {/* Логотип */}
           <a href="/" className="text-2xl font-bold hover-elevate px-3 py-2 rounded-md transition-colors" data-testid="link-home-logo">
             AI<span className="text-primary">for</span>Business
           </a>
 
-          <div className="flex items-center gap-1">
-            <Button
-              asChild
-              variant={isActive("/") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-home"
-            >
-              <Link href="/">
-                <Home className="h-4 w-4" />
-                Главная
-              </Link>
-            </Button>
+          {/* Поисковая строка */}
+          <div className="flex-1 max-w-2xl mx-8">
+            <div className="relative">
+              <Input 
+                placeholder="Поиск AI сервисов..." 
+                className="pl-10 pr-4"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
 
+          {/* Пользовательские действия */}
+          <div className="flex items-center gap-2">
             <Button
               asChild
               variant={isActive("/favorites") ? "secondary" : "ghost"}
-              className="gap-2"
+              className="gap-2 relative"
               data-testid="button-nav-favorites"
             >
               <Link href="/favorites">
@@ -55,35 +58,6 @@ export default function Navbar({
                     {favoritesCount}
                   </Badge>
                 )}
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/compare") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-compare"
-            >
-              <Link href="/compare">
-                <GitCompare className="h-4 w-4" />
-                Сравнение
-                {comparingCount > 0 && (
-                  <Badge variant="secondary" className="ml-1">
-                    {comparingCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/history") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-history"
-            >
-              <Link href="/history">
-                <History className="h-4 w-4" />
-                История
               </Link>
             </Button>
 
@@ -101,66 +75,6 @@ export default function Navbar({
                     {notificationsCount}
                   </Badge>
                 )}
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/calculator") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-calculator"
-            >
-              <Link href="/calculator">
-                <Calculator className="h-4 w-4" />
-                Калькулятор
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/use-cases") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-usecases"
-            >
-              <Link href="/use-cases">
-                <Briefcase className="h-4 w-4" />
-                Примеры
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/job-impact") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-jobimpact"
-            >
-              <Link href="/job-impact">
-                <TrendingUp className="h-4 w-4" />
-                Профессии
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/help") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-help"
-            >
-              <Link href="/help">
-                <HelpCircle className="h-4 w-4" />
-                Помощь
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant={isActive("/finances") ? "secondary" : "ghost"}
-              className="gap-2"
-              data-testid="button-nav-finances"
-            >
-              <Link href="/finances">
-                <Wallet className="h-4 w-4" />
-                Финансы
               </Link>
             </Button>
 
@@ -190,6 +104,120 @@ export default function Navbar({
               <Link href="/account">
                 <User className="h-4 w-4" />
                 Аккаунт
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Второй ряд - дополнительная навигация */}
+        <div className="flex items-center justify-between h-12 border-t border-border/50">
+          <div className="flex items-center gap-1">
+            <Button
+              asChild
+              variant={isActive("/") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-home"
+            >
+              <Link href="/">
+                <Home className="h-4 w-4" />
+                Главная
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/compare") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-compare"
+            >
+              <Link href="/compare">
+                <GitCompare className="h-4 w-4" />
+                Сравнение
+                {comparingCount > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-xs">
+                    {comparingCount}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/history") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-history"
+            >
+              <Link href="/history">
+                <History className="h-4 w-4" />
+                История
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/calculator") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-calculator"
+            >
+              <Link href="/calculator">
+                <Calculator className="h-4 w-4" />
+                Калькулятор
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/use-cases") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-usecases"
+            >
+              <Link href="/use-cases">
+                <Briefcase className="h-4 w-4" />
+                Примеры
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/job-impact") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-jobimpact"
+            >
+              <Link href="/job-impact">
+                <TrendingUp className="h-4 w-4" />
+                Профессии
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/finances") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-finances"
+            >
+              <Link href="/finances">
+                <Wallet className="h-4 w-4" />
+                Финансы
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={isActive("/help") ? "secondary" : "ghost"}
+              size="sm"
+              className="gap-2"
+              data-testid="button-nav-help"
+            >
+              <Link href="/help">
+                <HelpCircle className="h-4 w-4" />
+                Помощь
               </Link>
             </Button>
           </div>

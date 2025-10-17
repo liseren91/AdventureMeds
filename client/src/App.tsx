@@ -17,6 +17,8 @@ import JobImpact from "@/pages/JobImpact";
 import Account from "@/pages/Account";
 import Finances from "@/pages/Finances";
 import Cart from "@/pages/Cart";
+import ClientSurvey from "@/pages/ClientSurvey";
+import Checkout from "@/pages/Checkout";
 import Help from "@/pages/Help";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
@@ -63,6 +65,8 @@ function Router() {
         <Route path="/account" component={Account} />
         <Route path="/finances" component={Finances} />
         <Route path="/cart" component={Cart} />
+        <Route path="/survey" component={ClientSurvey} />
+        <Route path="/checkout" component={Checkout} />
         <Route path="/service/:id" component={ServiceDetail} />
         <Route component={NotFound} />
       </Switch>

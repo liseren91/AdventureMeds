@@ -625,11 +625,11 @@ ${cartItems.map(item => `${item.serviceName} - ${item.planName}: ${getPriceInRub
                 className="w-full gap-2" 
                 size="lg"
                 disabled={hasInsufficientFunds || !selectedPayer}
-                onClick={handleCheckout}
+                onClick={() => setLocation("/survey")}
                 data-testid="button-checkout"
               >
                 <ShoppingBag className="h-5 w-5" />
-                Оплатить {totalPrice.toLocaleString('ru-RU')} ₽
+                Настроить аккаунты
               </Button>
             </CardContent>
           </Card>

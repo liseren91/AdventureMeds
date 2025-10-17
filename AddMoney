@@ -1,0 +1,301 @@
+import React, { useState } from 'react';
+import { Menu, CreditCard, Wallet, Building2, User, ChevronDown } from 'lucide-react';
+
+const AiHuntBalance = () => {
+  const [selectedPayer, setSelectedPayer] = useState(null);
+  const [amount, setAmount] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+
+  const payers = [
+    {
+      id: 1,
+      type: 'legal',
+      name: 'ООО "Технологии Будущего"',
+      inn: '7813000886671',
+      balance: 15000
+    },
+    {
+      id: 2,
+      type: 'legal',
+      name: 'ИП Петров Петр Петрович',
+      inn: '123456789012',
+      balance: 8500
+    },
+    {
+      id: 3,
+      type: 'individual',
+      name: 'Иванов Иван Иванович',
+      balance: 3200
+    }
+  ];
+
+  const paymentMethods = [
+    {
+      id: 'cards',
+      name: 'Банковские карты',
+      icon: '💳',
+      description: 'Мир, Visa, Mastercard',
+      available: true,
+      individualOnly: true
+    },
+    {
+      id: 'corporate_card',
+      name: 'Корпоративная карта',
+      icon: '💳',
+      description: 'Карта компании',
+      available: true,
+      legalOnly: true
+    },
+    {
+      id: 'invoice',
+      name: 'Оплата по счету',
+      icon: '📄',
+      description: 'Банковский счет организации',
+      available: true,
+      legalOnly: true
+    },
+    {
+      id: 'yoomoney',
+      name: 'ЮMoney',
+      icon: '🟣',
+      description: 'Электронный кошелек',
+      available: true,
+      individualOnly: true
+    },
+    {
+      id: 'sbp',
+      name: 'СБП (Система быстрых платежей)',
+      icon: '💠',
+      description: 'Перевод по номеру телефона',
+      available: true,
+      individualOnly: true
+    },
+    {
+      id: 'sberpay',
+      name: 'SberPay',
+      icon: '🟢',
+      description: 'Оплата через Сбербанк',
+      available: true,
+      individualOnly: true
+    },
+    {
+      id: 'custom',
+      name: 'Предложить свой способ',
+      icon: '➕',
+      description: 'Другой способ пополнения',
+      available: true
+    }
+  ];
+
+  const quickAmounts = [500, 1000, 2000, 5000, 10000];
+
+  const handlePayment = () => {
+    if (!selectedPayer || !amount || !selectedPaymentMethod) {
+      alert('Пожалуйста, заполните все поля');
+      return;
+    }
+    alert(`Переход к оплате ${amount} ₽ через ${paymentMethods.find(m => m.id === selectedPaymentMethod)?.name}`);
+  };
+
+  const filteredPaymentMethods = selectedPayer?.type === 'legal' 
+    ? paymentMethods.filter(m => m.legalOnly || (!m.individualOnly && !m.legalOnly))
+    : paymentMethods.filter(m => m.individualOnly || (!m.individualOnly && !m.legalOnly));
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">AH</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">AI Hunt</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Финансы — AI Hunt</h2>
+          <div className="flex gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+              + Добавить плательщика
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+              💰 Пополнить баланс
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm">
+              💾 Списать со счета
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Плательщики</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {payers.map(payer => (
+                <button
+                  key={payer.id}
+                  onClick={() => setSelectedPayer(payer)}
+                  className={`p-4 border rounded-lg text-left transition-all ${
+                    selectedPayer?.id === payer.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-8 h-8 rounded flex items-center justify-center flex-shrink-0 ${
+                      payer.type === 'legal' ? 'bg-gray-100' : 'bg-blue-50'
+                    }`}>
+                      {payer.type === 'legal' ? (
+                        <Building2 className="w-4 h-4 text-gray-600" />
+                      ) : (
+                        <User className="w-4 h-4 text-blue-600" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate">{payer.name}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {payer.type === 'legal' ? 'Тип: company' : 'Тип: individual'}
+                      </div>
+                      <div className="mt-2">
+                        <div className="text-sm text-gray-600">Баланс: <span className="font-semibold text-gray-900">{payer.balance.toLocaleString()} RUB</span></div>
+                        <div className="text-xs text-gray-500 mt-1">Сервисы: ChatGPT Team, Claude Pro, Midjourney Business</div>
+                      </div>
+                      {payer.balance < 1000 && (
+                        <div className="mt-2 flex items-center gap-1 text-xs text-red-600">
+                          <span className="w-4 h-4 flex items-center justify-center">⚠</span>
+                          Недостаточно средств для оплаты всех подписок
+                        </div>
+                      )}
+                      {payer.balance >= 1000 && (
+                        <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+                          <span className="w-4 h-4 flex items-center justify-center">✓</span>
+                          Достаточно средств (≈{(payer.balance * 0.95).toFixed(2)} RUB)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Пополнить счет на: *
+            </label>
+            
+            <div className="relative">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg pr-12"
+                placeholder="2000"
+                min="0"
+              />
+              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₽</span>
+            </div>
+
+            <div className="mt-4">
+              <div className="text-xs text-gray-500 mb-2">Быстрый выбор суммы:</div>
+              <div className="flex flex-wrap gap-2">
+                {quickAmounts.map(quickAmount => (
+                  <button
+                    key={quickAmount}
+                    onClick={() => setAmount(quickAmount.toString())}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-sm font-medium"
+                  >
+                    {quickAmount.toLocaleString()} ₽
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {amount && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <div className="text-sm text-gray-600">
+                  Будет списано: <span className="font-semibold text-gray-900">{parseInt(amount).toLocaleString()} руб.</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {selectedPayer && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Выберите способ оплаты</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredPaymentMethods.map(method => (
+                  <button
+                    key={method.id}
+                    onClick={() => method.available && setSelectedPaymentMethod(method.id)}
+                    disabled={!method.available}
+                    className={`p-4 border-2 rounded-xl text-left transition-all ${
+                      selectedPaymentMethod === method.id
+                        ? 'border-blue-600 bg-blue-50'
+                        : method.available
+                        ? 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        : 'border-gray-200 opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="text-3xl">{method.icon}</div>
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{method.name}</div>
+                        <div className="text-sm text-gray-600 mt-1">{method.description}</div>
+                        {method.legalOnly && (
+                          <div className="text-xs text-purple-600 mt-1">Только для юр. лиц</div>
+                        )}
+                      </div>
+                      {selectedPaymentMethod === method.id && (
+                        <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+
+
+          <div className="flex justify-between items-center pt-6">
+            <button className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+              Отмена
+            </button>
+            <button
+              onClick={handlePayment}
+              disabled={!selectedPayer || !amount || !selectedPaymentMethod}
+              className="px-8 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Оплатить
+            </button>
+          </div>
+
+          <div className="text-xs text-gray-500 text-center">
+            Вы можете отправить ссылку на оплату другому человеку - получить ссылку.
+            <br />
+            Ссылка действительна 24 часа.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AiHuntBalance;

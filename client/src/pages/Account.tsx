@@ -16,7 +16,13 @@ import {
   Clock,
   AlertCircle,
   Upload,
-  FileText
+  FileText,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  CheckCircle
 } from "lucide-react";
 import { Link } from "wouter";
 import { MOCK_SERVICES } from "@/lib/mockData";
@@ -48,6 +54,7 @@ interface Purchase {
 export default function Account() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const stored = localStorage.getItem("userPurchases");
@@ -132,6 +139,33 @@ export default function Account() {
     );
     setPurchases(updated);
     localStorage.setItem("userPurchases", JSON.stringify(updated));
+  };
+
+  const togglePasswordVisibility = (purchaseId: string) => {
+    const newVisible = new Set(visiblePasswords);
+    if (newVisible.has(purchaseId)) {
+      newVisible.delete(purchaseId);
+    } else {
+      newVisible.add(purchaseId);
+    }
+    setVisiblePasswords(newVisible);
+  };
+
+  const getSubscriptionStatus = (purchase: Purchase) => {
+    const nextPaymentDate = getNextPaymentDate(purchase);
+    const daysUntil = getDaysUntilPayment(nextPaymentDate);
+    
+    if (daysUntil <= 0) return { status: "expired", label: "Требует оплаты", variant: "destructive" as const };
+    if (daysUntil <= 3) return { status: "expiring", label: "Истекает", variant: "outline" as const };
+    return { status: "active", label: "Активна", variant: "default" as const };
+  };
+
+  const formatPrice = (price: number) => {
+    const priceInRub = price * 95; // Примерный курс
+    return {
+      rub: priceInRub.toLocaleString('ru-RU'),
+      usd: price.toFixed(0)
+    };
   };
 
   return (
@@ -332,6 +366,143 @@ export default function Account() {
                   <Link href="/">
                     <Button data-testid="button-browse-services">Browse Services</Button>
                   </Link>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Таблица подписок */}
+            {activePurchases.length > 0 && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Подписки</CardTitle>
+                  <Button size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Добавить подписку
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-2 font-medium text-sm text-muted-foreground">СЕРВИС</th>
+                          <th className="text-left py-3 px-2 font-medium text-sm text-muted-foreground">ДОСТУП</th>
+                          <th className="text-left py-3 px-2 font-medium text-sm text-muted-foreground">ДАТА ОПЛАТЫ</th>
+                          <th className="text-left py-3 px-2 font-medium text-sm text-muted-foreground">СТОИМОСТЬ</th>
+                          <th className="text-left py-3 px-2 font-medium text-sm text-muted-foreground">СТАТУС</th>
+                          <th className="text-left py-3 px-2 font-medium text-sm text-muted-foreground">ДЕЙСТВИЯ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activePurchases.map((purchase) => {
+                          const service = getPurchasedService(purchase.serviceId);
+                          if (!service) return null;
+                          
+                          const nextPaymentDate = getNextPaymentDate(purchase);
+                          const statusInfo = getSubscriptionStatus(purchase);
+                          const priceInfo = formatPrice(purchase.price);
+                          const isPasswordVisible = visiblePasswords.has(purchase.id);
+                          
+                          return (
+                            <tr key={purchase.id} className="border-b hover:bg-muted/50">
+                              <td className="py-4 px-2">
+                                <div className="flex items-center gap-3">
+                                  {service.logoUrl ? (
+                                    <img 
+                                      src={service.logoUrl} 
+                                      alt={service.name}
+                                      className="w-8 h-8 object-contain rounded"
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                                      <span className="text-primary font-semibold text-sm">
+                                        {service.name.charAt(0)}
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="font-medium">{service.name}</div>
+                                    <div className="text-sm text-muted-foreground">{purchase.planName}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-4 px-2">
+                                {purchase.login && purchase.password ? (
+                                  <div className="space-y-1">
+                                    <div className="text-sm">
+                                      <span className="text-muted-foreground">Логин: </span>
+                                      <span className="font-mono">{purchase.login}</span>
+                                    </div>
+                                    <div className="text-sm flex items-center gap-2">
+                                      <span className="text-muted-foreground">Пароль: </span>
+                                      <span className="font-mono">
+                                        {isPasswordVisible ? purchase.password : '•••••••••'}
+                                      </span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => togglePasswordVisibility(purchase.id)}
+                                      >
+                                        {isPasswordVisible ? (
+                                          <EyeOff className="h-3 w-3" />
+                                        ) : (
+                                          <Eye className="h-3 w-3" />
+                                        )}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">Нет данных</span>
+                                )}
+                              </td>
+                              <td className="py-4 px-2">
+                                <div className="text-sm">
+                                  {nextPaymentDate.toLocaleDateString('ru-RU')}
+                                </div>
+                              </td>
+                              <td className="py-4 px-2">
+                                <div className="text-sm">
+                                  <div className="font-medium">{priceInfo.rub} ₽</div>
+                                  <div className="text-muted-foreground">{priceInfo.usd} USD</div>
+                                </div>
+                              </td>
+                              <td className="py-4 px-2">
+                                <Badge 
+                                  variant={statusInfo.variant}
+                                  className={`gap-1 ${
+                                    statusInfo.status === 'active' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                    statusInfo.status === 'expiring' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
+                                    'bg-red-500/10 text-red-500 border-red-500/20'
+                                  }`}
+                                >
+                                  {statusInfo.status === 'active' && <CheckCircle className="h-3 w-3" />}
+                                  {statusInfo.status === 'expiring' && <Clock className="h-3 w-3" />}
+                                  {statusInfo.status === 'expired' && <AlertCircle className="h-3 w-3" />}
+                                  {statusInfo.label}
+                                </Badge>
+                              </td>
+                              <td className="py-4 px-2">
+                                <div className="flex items-center gap-2">
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    onClick={() => handleCancelSubscription(purchase.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </CardContent>
               </Card>
             )}

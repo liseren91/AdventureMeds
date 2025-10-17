@@ -62,35 +62,70 @@ export const MOCK_PAYERS: Payer[] = [
   },
 ];
 
-export const PAYMENT_METHODS = [
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  available: boolean;
+  individualOnly?: boolean;
+  legalOnly?: boolean;
+}
+
+export const PAYMENT_METHODS: PaymentMethod[] = [
   {
-    id: "card",
-    name: "Корпоративная карта",
-    description: "Карта компании",
+    id: "cards",
+    name: "Банковские карты",
     icon: "💳",
+    description: "Мир, Visa, Mastercard",
+    available: true,
+    individualOnly: true,
+  },
+  {
+    id: "corporate_card",
+    name: "Корпоративная карта",
+    icon: "💳",
+    description: "Карта компании",
+    available: true,
+    legalOnly: true,
   },
   {
     id: "invoice",
     name: "Оплата по счету",
+    icon: "📄",
     description: "Банковский счет организации",
-    icon: "🏦",
+    available: true,
+    legalOnly: true,
   },
   {
     id: "yumoney",
     name: "ЮMoney",
-    description: "Электронный кошелек",
     icon: "🟣",
+    description: "Электронный кошелек",
+    available: true,
+    individualOnly: true,
   },
   {
     id: "sbp",
     name: "СБП (Система быстрых платежей)",
+    icon: "💠",
     description: "Перевод по номеру телефона",
-    icon: "💎",
+    available: true,
+    individualOnly: true,
   },
   {
-    id: "sber",
+    id: "sberpay",
     name: "SberPay",
-    description: "Оплата через СберБанк",
     icon: "🟢",
+    description: "Оплата через Сбербанк",
+    available: true,
+    individualOnly: true,
+  },
+  {
+    id: "custom",
+    name: "Предложить свой способ",
+    icon: "➕",
+    description: "Другой способ пополнения",
+    available: true,
   },
 ];

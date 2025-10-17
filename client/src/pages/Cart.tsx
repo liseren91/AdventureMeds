@@ -12,8 +12,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ShoppingBag,
-  ChevronDown,
-  ChevronUp,
   Clock
 } from "lucide-react";
 import { CartItem, getCartFromStorage, removeFromCart, clearCart, updateCartItemCredentials } from "@/lib/cartData";
@@ -43,7 +41,7 @@ export default function Cart() {
   const [payers, setPayers] = useState<Payer[]>([]);
   const [selectedPayerId, setSelectedPayerId] = useState<string>("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"balance" | "card" | "invoice">("balance");
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [credentialChoices, setCredentialChoices] = useState<Record<string, "use_existing" | "create_new">>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [purchasedItemsCount, setPurchasedItemsCount] = useState(0);
   const [purchasedTotal, setPurchasedTotal] = useState(0);
@@ -72,14 +70,21 @@ export default function Cart() {
     });
   };
 
-  const toggleExpanded = (itemId: string) => {
-    const newExpanded = new Set(expandedItems);
-    if (newExpanded.has(itemId)) {
-      newExpanded.delete(itemId);
-    } else {
-      newExpanded.add(itemId);
+  const handleCredentialChoiceChange = (itemId: string, choice: "use_existing" | "create_new") => {
+    setCredentialChoices(prev => ({
+      ...prev,
+      [itemId]: choice
+    }));
+    
+    // If choosing to create new, clear existing credentials
+    if (choice === "create_new") {
+      updateCartItemCredentials(itemId, {
+        login: "",
+        password: "",
+        paymentUrl: ""
+      });
+      setCartItems(getCartFromStorage());
     }
-    setExpandedItems(newExpanded);
   };
 
   const handleCredentialsUpdate = (
@@ -385,7 +390,6 @@ ${cartItems.map(item => `${item.serviceName} - ${item.planName}: ${getPriceInRub
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map((item) => {
-            const isExpanded = expandedItems.has(item.id);
             return (
               <Card key={item.id} className="hover-elevate" data-testid={`cart-item-${item.id}`}>
                 <CardContent className="p-6">
@@ -430,77 +434,91 @@ ${cartItems.map(item => `${item.serviceName} - ${item.planName}: ${getPriceInRub
                           ${item.price.toFixed(2)}
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleExpanded(item.id)}
-                          data-testid={`button-toggle-credentials-${item.id}`}
-                        >
-                          {isExpanded ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveItem(item.id)}
-                          data-testid={`button-remove-${item.id}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveItem(item.id)}
+                        data-testid={`button-remove-${item.id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
 
-                  {isExpanded && (
-                    <div className="mt-6 pt-6 border-t space-y-4">
+                  <div className="mt-6 pt-6 border-t space-y-4">
                       <h4 className="font-semibold text-sm">Информация о доступе</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      
+                      <RadioGroup 
+                        value={credentialChoices[item.id] || "use_existing"} 
+                        onValueChange={(value) => handleCredentialChoiceChange(item.id, value as "use_existing" | "create_new")}
+                        data-testid={`radio-credential-choice-${item.id}`}
+                      >
                         <div className="space-y-2">
-                          <Label htmlFor={`login-${item.id}`} className="text-xs">
-                            Логин в сервисе
-                          </Label>
-                          <Input
-                            id={`login-${item.id}`}
-                            type="text"
-                            placeholder="username или email"
-                            value={item.login || ""}
-                            onChange={(e) => handleCredentialsUpdate(item.id, "login", e.target.value)}
-                            data-testid={`input-login-${item.id}`}
-                          />
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="use_existing" id={`use-existing-${item.id}`} />
+                            <Label htmlFor={`use-existing-${item.id}`} className="cursor-pointer font-normal">
+                              У меня есть аккаунт - введу данные
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="create_new" id={`create-new-${item.id}`} />
+                            <Label htmlFor={`create-new-${item.id}`} className="cursor-pointer font-normal">
+                              Создайте мне новый аккаунт
+                            </Label>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor={`password-${item.id}`} className="text-xs">
-                            Пароль от сервиса
-                          </Label>
-                          <Input
-                            id={`password-${item.id}`}
-                            type="password"
-                            placeholder="Пароль"
-                            value={item.password || ""}
-                            onChange={(e) => handleCredentialsUpdate(item.id, "password", e.target.value)}
-                            data-testid={`input-password-${item.id}`}
-                          />
+                      </RadioGroup>
+
+                      {credentialChoices[item.id] === "create_new" ? (
+                        <div className="p-4 bg-muted rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Мы создадим для вас новый аккаунт с уникальными учетными данными. После оформления заказа вы получите доступ к аккаунту.
+                          </p>
                         </div>
-                        <div className="space-y-2 md:col-span-2">
-                          <Label htmlFor={`payment-url-${item.id}`} className="text-xs">
-                            Ссылка на оплату сервиса
-                          </Label>
-                          <Input
-                            id={`payment-url-${item.id}`}
-                            type="url"
-                            placeholder="https://..."
-                            value={item.paymentUrl || ""}
-                            onChange={(e) => handleCredentialsUpdate(item.id, "paymentUrl", e.target.value)}
-                            data-testid={`input-payment-url-${item.id}`}
-                          />
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`login-${item.id}`} className="text-xs">
+                              Логин в сервисе
+                            </Label>
+                            <Input
+                              id={`login-${item.id}`}
+                              type="text"
+                              placeholder="username или email"
+                              value={item.login || ""}
+                              onChange={(e) => handleCredentialsUpdate(item.id, "login", e.target.value)}
+                              data-testid={`input-login-${item.id}`}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`password-${item.id}`} className="text-xs">
+                              Пароль от сервиса
+                            </Label>
+                            <Input
+                              id={`password-${item.id}`}
+                              type="password"
+                              placeholder="Пароль"
+                              value={item.password || ""}
+                              onChange={(e) => handleCredentialsUpdate(item.id, "password", e.target.value)}
+                              data-testid={`input-password-${item.id}`}
+                            />
+                          </div>
+                          <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor={`payment-url-${item.id}`} className="text-xs">
+                              Ссылка на оплату сервиса
+                            </Label>
+                            <Input
+                              id={`payment-url-${item.id}`}
+                              type="url"
+                              placeholder="https://..."
+                              value={item.paymentUrl || ""}
+                              onChange={(e) => handleCredentialsUpdate(item.id, "paymentUrl", e.target.value)}
+                              data-testid={`input-payment-url-${item.id}`}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  )}
                 </CardContent>
               </Card>
             );

@@ -20,6 +20,7 @@ import Cart from "@/pages/Cart";
 import ClientSurvey from "@/pages/ClientSurvey";
 import Checkout from "@/pages/Checkout";
 import Help from "@/pages/Help";
+import MyServices from "@/pages/MyServices";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 import { getCartFromStorage } from "@/lib/cartData";
@@ -64,6 +65,7 @@ function Router() {
         <Route path="/help" component={Help} />
         <Route path="/account" component={Account} />
         <Route path="/finances" component={Finances} />
+        <Route path="/my-services" component={MyServices} />
         <Route path="/cart" component={Cart} />
         <Route path="/survey" component={ClientSurvey} />
         <Route path="/checkout" component={Checkout} />

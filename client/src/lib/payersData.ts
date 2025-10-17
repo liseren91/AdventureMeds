@@ -1,8 +1,15 @@
+export interface PayerPaymentMethod {
+  name: string;
+  description: string;
+  isDefault: boolean;
+}
+
 export interface Payer {
   id: string;
   type: "company" | "individual";
   balance: number;
   services?: string[]; // service IDs
+  paymentMethods: PayerPaymentMethod[];
   // Company fields
   companyName?: string;
   inn?: string;
@@ -50,6 +57,18 @@ export const MOCK_PAYERS: Payer[] = [
     kpp: "770701001",
     balance: 150000,
     services: ["chatgpt", "midjourney", "claude"],
+    paymentMethods: [
+      {
+        name: "Корпоративная карта VISA •• 8899",
+        description: "ЮKassa — corporate card",
+        isDefault: true,
+      },
+      {
+        name: "Р/счёт 40702...",
+        description: "Bank — bank account",
+        isDefault: false,
+      },
+    ],
   },
   {
     id: "payer-2",
@@ -59,6 +78,13 @@ export const MOCK_PAYERS: Payer[] = [
     passportNumber: "1234 567890",
     balance: 1200,
     services: ["chatgpt"],
+    paymentMethods: [
+      {
+        name: "VISA •• 4242",
+        description: "ЮKassa — personal card",
+        isDefault: true,
+      },
+    ],
   },
 ];
 

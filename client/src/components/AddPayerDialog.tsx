@@ -46,6 +46,13 @@ export default function AddPayerDialog({ onPayerAdded }: AddPayerDialogProps) {
         companyName: name.trim(),
         balance: parseFloat(balance) || 0,
         services: [],
+        paymentMethods: [
+          {
+            name: "Корпоративная карта",
+            description: "Карта компании",
+            isDefault: true,
+          },
+        ],
       };
     } else {
       // Split full name into first and last name
@@ -60,6 +67,13 @@ export default function AddPayerDialog({ onPayerAdded }: AddPayerDialogProps) {
         lastName,
         balance: parseFloat(balance) || 0,
         services: [],
+        paymentMethods: [
+          {
+            name: "Личная карта",
+            description: "Банковская карта",
+            isDefault: true,
+          },
+        ],
       };
     }
 

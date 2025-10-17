@@ -21,8 +21,10 @@ import { MOCK_SERVICES } from "@/lib/mockData";
 import AddPayerDialog from "@/components/AddPayerDialog";
 import TopUpDialog from "@/components/TopUpDialog";
 import WithdrawDialog from "@/components/WithdrawDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Finances() {
+  const { toast } = useToast();
   const [payers, setPayers] = useState<Payer[]>([]);
   const [selectedPayerIndex, setSelectedPayerIndex] = useState<number>(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -33,7 +35,19 @@ export default function Finances() {
   useEffect(() => {
     const storedPayers = localStorage.getItem("payers");
     if (storedPayers) {
-      setPayers(JSON.parse(storedPayers));
+      const loadedPayers = JSON.parse(storedPayers);
+      // Ensure all payers have paymentMethods array
+      const normalizedPayers = loadedPayers.map((payer: Payer) => ({
+        ...payer,
+        paymentMethods: payer.paymentMethods || [
+          {
+            name: payer.type === "company" ? "Корпоративная карта" : "Личная карта",
+            description: payer.type === "company" ? "Карта компании" : "Банковская карта",
+            isDefault: true,
+          },
+        ],
+      }));
+      setPayers(normalizedPayers);
     } else {
       setPayers(MOCK_PAYERS);
       localStorage.setItem("payers", JSON.stringify(MOCK_PAYERS));
@@ -83,15 +97,20 @@ export default function Finances() {
   const handleMakeDefault = (methodIndex: number) => {
     if (!payers[selectedPayerIndex]) return;
     
-    setPayers(prev => {
-      const updated = [...prev];
-      updated[selectedPayerIndex].paymentMethods = updated[selectedPayerIndex].paymentMethods.map((method, idx) => ({
-        ...method,
-        isDefault: idx === methodIndex
-      }));
-      return updated;
+    const updated = [...payers];
+    const currentPayerMethods = updated[selectedPayerIndex].paymentMethods || [];
+    updated[selectedPayerIndex].paymentMethods = currentPayerMethods.map((method, idx) => ({
+      ...method,
+      isDefault: idx === methodIndex
+    }));
+    
+    setPayers(updated);
+    localStorage.setItem("payers", JSON.stringify(updated));
+    
+    toast({
+      title: "Способ оплаты обновлен",
+      description: "Способ оплаты установлен как основной",
     });
-    localStorage.setItem("payers", JSON.stringify(payers));
   };
 
   const currentPayer = payers[selectedPayerIndex];
@@ -355,7 +374,7 @@ export default function Finances() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {currentPayer.paymentMethods.map((method, index) => (
+                {(currentPayer.paymentMethods || []).map((method, index) => (
                   <div key={index} className="flex justify-between items-center p-4 border rounded-lg hover:border-primary/50 transition">
                     <div>
                       <p className="font-medium">{method.name}</p>
